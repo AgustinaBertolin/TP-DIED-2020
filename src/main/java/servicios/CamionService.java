@@ -21,4 +21,12 @@ public class CamionService {
 	public List<Camion> buscarTodos() {
 		return camionDao.buscarTodos();
 	}
+	
+	public void borrarCamion(Camion c) {
+		this.camionDao.borrar(c.getId());
+	}
+	
+	public Camion buscarCamion(Integer id) {  //que atributos????
+		return this.camionDao.buscarPorId(id);
+	}
 }
