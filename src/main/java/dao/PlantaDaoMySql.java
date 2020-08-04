@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import BaseDeDatos.BD;
+import dominio.Camion;
+import dominio.Pedido;
 import dominio.Planta;
+import dominio.Stock;
 
 public class PlantaDaoMySql implements PlantaDao {
 
@@ -34,15 +37,38 @@ public class PlantaDaoMySql implements PlantaDao {
 		Connection conn = BD.getConexion();
 		PreparedStatement pstmt = null;
 		try {
+			
+			StockDaoMySql stockDao = new StockDaoMySql();
+			PedidoDaoMySql pedidoDao = new PedidoDaoMySql();
+			CamionDaoMySql camionDao = new CamionDaoMySql();
+			
 			if(p.getId()!=null && p.getId()>0) {
 				System.out.println("EJECUTA UPDATE");
 				pstmt= conn.prepareStatement(UPDATE_PLANTA);
 				pstmt.setString(2, p.getNombre());
+				
+				for(Stock s: p.getStock()) {
+					stockDao.saveOrUpdate(s, p.getId());
+				}
+				
+				for(Pedido pe: p.getPedidosRealizados()) {
+					pedidoDao.saveOrUpdate(pe);
+				}
+				
+				for(Camion c: p.getCamionesDisponibles()) {
+					camionDao.saveOrUpdate(c);
+				}
+				
 			}else {
 				System.out.println("EJECUTA INSERT");
 				pstmt= conn.prepareStatement(INSERT_PLANTA);
 				pstmt.setInt(1, p.getId());
 				pstmt.setString(2, p.getNombre());
+				
+				for(Stock s: p.getStock()) {
+					stockDao.saveOrUpdate(s, p.getId());
+				}
+				
 			}
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
@@ -67,9 +93,16 @@ public class PlantaDaoMySql implements PlantaDao {
 			pstmt= conn.prepareStatement(SELECT_ID);
 			pstmt.setInt(1, id);
 			rs = pstmt.executeQuery();
+			StockDaoMySql stockDao = new StockDaoMySql();
+			PedidoDaoMySql pedidoDao = new PedidoDaoMySql();
+			CamionDaoMySql camionDao = new CamionDaoMySql();
+			
 			while(rs.next()) {
 				p.setId(rs.getInt("ID"));
 				p.setNombre(rs.getString("NOMBRE"));
+				p.setStock(stockDao.buscarPorIdPlanta(p.getId()));
+				p.setCamionesDisponibles(camionDao.buscarTodosPorPlanta(p.getId()));
+				p.setPedidosRealizados(pedidoDao.buscarTodosPorPlanta(p.getId()));
 			}			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -86,13 +119,16 @@ public class PlantaDaoMySql implements PlantaDao {
 	}
 
 	public void borrar(Integer id) {
-		// TODO Auto-generated method stub
+
 		Connection conn = BD.getConexion();
 		PreparedStatement pstmt = null;
+		
 		try {
+			
 			pstmt= conn.prepareStatement(DELETE_PLANTA);
 			pstmt.setInt(1, id);
-			pstmt.execute();			
+			pstmt.execute();	
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
@@ -113,10 +149,18 @@ public class PlantaDaoMySql implements PlantaDao {
 		try {
 			pstmt= conn.prepareStatement(SELECT_ALL_PLANTA);
 			rs = pstmt.executeQuery();
+			StockDaoMySql stockDao = new StockDaoMySql();
+			PedidoDaoMySql pedidoDao = new PedidoDaoMySql();
+			CamionDaoMySql camionDao = new CamionDaoMySql();
+			
 			while(rs.next()) {
 				Planta p = new Planta();
 				p.setId(rs.getInt("ID"));
 				p.setNombre(rs.getString("NOMBRE"));
+				p.setStock(stockDao.buscarPorIdPlanta(p.getId()));
+				p.setCamionesDisponibles(camionDao.buscarTodosPorPlanta(p.getId()));
+				p.setPedidosRealizados(pedidoDao.buscarTodosPorPlanta(p.getId()));
+				
 				lista.add(p);
 			}			
 		} catch (SQLException e) {

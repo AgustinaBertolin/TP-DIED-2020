@@ -15,9 +15,13 @@ import dominio.InsumoLiquido;
 
 public class InsumoDaoMySql implements InsumoDao {
 
-	private static final String SELECT_ALL_INSUMO = 
-			"SELECT * FROM INSUMO, INSUMO_GENERAL, INSUMO_LIQUIDO"+
-			"WHERE INSUMO.ID = INSUMO_GENERAL.ID OR INSUMO.ID = INSUMO_LIQUIDO.ID";
+	private static final String SELECT_ALL_INSUMO_GENERAL = 
+			"SELECT * FROM INSUMO, INSUMO_GENERAL"+
+			"WHERE INSUMO.ID = INSUMO_GENERAL.ID";
+
+	private static final String SELECT_ALL_INSUMO_LIQUIDO = 
+			"SELECT * FROM INSUMO, INSUMO_LIQUIDO"+
+			"WHERE INSUMO.ID = INSUMO_LIQUIDO.ID";
 	
 	private static final String INSERT_INSUMO =
 			"INSERT INTO INSUMO (DESCRIPCION, UNIDAD_DE_MEDIDA, COSTO) VALUES (?,?,?)";
@@ -167,25 +171,33 @@ public class InsumoDaoMySql implements InsumoDao {
 		Connection conn = BD.getConexion();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		PreparedStatement pstmt2 = null;
+		ResultSet rs2 = null;
 		try {
-			pstmt= conn.prepareStatement(SELECT_ALL_INSUMO);
+			pstmt= conn.prepareStatement(SELECT_ALL_INSUMO_GENERAL);
 			rs = pstmt.executeQuery();
-			Insumo i = null;
 			while(rs.next()) {
-				if(rs.getObject("PESO") != null) {
-					i = new InsumoGeneral();
-					((InsumoGeneral) i).setPeso(rs.getDouble("PESO"));
-				}
-				else {
-					i = new InsumoLiquido();
-					((InsumoLiquido) i).setDensidad(rs.getDouble("DENSIDAD"));
-				}
+				InsumoGeneral i = new InsumoGeneral();
+				i.setPeso(rs.getDouble("PESO"));
 				i.setId(rs.getInt("ID"));
 				i.setDescripcion(rs.getString("DESCRIPCION"));
 				i.setUnidadDeMedida(UnidadDeMedida.valueOf(rs.getString("UNIDAD_DE_MEDIDA")));
 				i.setCosto(rs.getDouble("COSTO"));
 				lista.add(i);
 			}			
+			
+			pstmt2 = conn.prepareStatement(SELECT_ALL_INSUMO_LIQUIDO);
+			rs2 = pstmt2.executeQuery();
+			while(rs2.next()) {
+				InsumoLiquido i = new InsumoLiquido();
+				i.setDensidad(rs2.getDouble("DENSIDAD"));
+				i.setId(rs2.getInt("ID"));
+				i.setDescripcion(rs2.getString("DESCRIPCION"));
+				i.setUnidadDeMedida(UnidadDeMedida.valueOf(rs2.getString("UNIDAD_DE_MEDIDA")));
+				i.setCosto(rs2.getDouble("COSTO"));
+				lista.add(i);
+			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {

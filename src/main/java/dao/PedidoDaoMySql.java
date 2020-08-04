@@ -18,6 +18,10 @@ public class PedidoDaoMySql implements PedidoDao {
 	private static final String SELECT_ALL_PEDIDO =
 			" SELECT * FROM PEDIDO";
 	
+	private static final String SELECT_ALL_PEDIDO_PLANTA =
+			" SELECT * FROM PEDIDO"+
+			" WHERE PLANTA_DESTINO = ?";
+	
 	private static final String SELECT_ID_ITEM =  //BUSCAR INSUMOS?
 			" SELECT * FROM ITEM"+
 			" WHERE NUMERO_ORDEN = ?";
@@ -134,7 +138,7 @@ public class PedidoDaoMySql implements PedidoDao {
 		return p;
 	}
 
-	public void borrarInsumo(Integer numero_orden) {
+	public void borrarPedido(Integer numero_orden) {
 		Connection conn = BD.getConexion();
 		PreparedStatement pstmt = null;
 		try {
@@ -164,7 +168,12 @@ public class PedidoDaoMySql implements PedidoDao {
 			Pedido p = new Pedido();
 			while(rs.next()) {
 				p.setNroOrden(rs.getInt("NUMERO_ORDEN"));
-				//planta
+				
+				//PLANTA
+				PlantaDaoMySql plantaDao = new PlantaDaoMySql();
+				p.setDestino(plantaDao.buscarPorId(rs.getInt("PLANTA_DESTINO")));
+				//
+				
 				p.setFechaSolicitud(rs.getDate("FECHA_SOLICITUD"));
 				p.setFechaEntrega(rs.getDate("FECHA_ENTREGA"));
 				p.setEstado(Estado.valueOf(rs.getString("ESTADO")));
@@ -178,8 +187,17 @@ public class PedidoDaoMySql implements PedidoDao {
 						Envio e = new Envio();
 						e.setId(rs2.getInt("ID"));
 						e.setCosto(rs2.getDouble("COSTO"));
+						
 						//CAMION
+						CamionDaoMySql camionDao = new CamionDaoMySql();
+						e.setCamionAsignado(camionDao.buscarPorId(rs2.getInt("CAMION")));
+						//
+						
 						//RUTA
+						RutaDaoMySql rutaDao = new RutaDaoMySql();
+						e.setRutaElegida(rutaDao.buscarPorId(rs2.getInt("RUTA")));
+						//
+						
 					}
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -219,7 +237,12 @@ public class PedidoDaoMySql implements PedidoDao {
 			Item i = new Item();
 			while(rs.next()) {
 				i.setId(rs.getInt("ID"));
+				
 				//INSUMO
+				InsumoDaoMySql insumoDao = new InsumoDaoMySql();
+				i.setInsumo(insumoDao.buscarPorId(rs.getInt("INSUMO")));
+				//
+				
 				i.setCantidad(rs.getInt("CANTIDAD"));
 			}	
 			
@@ -244,11 +267,18 @@ public class PedidoDaoMySql implements PedidoDao {
 		ResultSet rs = null;
 		try {
 			pstmt= conn.prepareStatement(SELECT_ESTADO_PEDIDO);
+			pstmt.setString(1, estado.toString());
 			rs = pstmt.executeQuery();
 			Pedido p = new Pedido();
+			
 			while(rs.next()) {
 				p.setNroOrden(rs.getInt("NUMERO_ORDEN"));
-				//planta
+				
+				//PLANTA
+				PlantaDaoMySql plantaDao = new PlantaDaoMySql();
+				p.setDestino(plantaDao.buscarPorId(rs.getInt("PLANTA_DESTINO")));
+				//
+				
 				p.setFechaSolicitud(rs.getDate("FECHA_SOLICITUD"));
 				p.setFechaEntrega(rs.getDate("FECHA_ENTREGA"));
 				p.setEstado(Estado.valueOf(rs.getString("ESTADO")));
@@ -262,8 +292,86 @@ public class PedidoDaoMySql implements PedidoDao {
 						Envio e = new Envio();
 						e.setId(rs2.getInt("ID"));
 						e.setCosto(rs2.getDouble("COSTO"));
+						
 						//CAMION
+						CamionDaoMySql camionDao = new CamionDaoMySql();
+						e.setCamionAsignado(camionDao.buscarPorId(rs2.getInt("CAMION")));
+						//
+						
 						//RUTA
+						RutaDaoMySql rutaDao = new RutaDaoMySql();
+						e.setRutaElegida(rutaDao.buscarPorId(rs2.getInt("RUTA")));
+						//
+						
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}finally {
+					try {
+						if(rs2!=null) rs2.close();
+						if(pstmt2!=null) pstmt2.close();				
+					}catch(SQLException e) {
+						e.printStackTrace();
+					}
+				}	
+			}	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(rs!=null) rs.close();
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}	
+		System.out.println("Resultado "+lista);
+		return lista;
+	}
+
+	public List<Pedido> buscarTodosPorPlanta(Integer id_planta) {
+		List<Pedido> lista = new ArrayList<Pedido>();
+		Connection conn = BD.getConexion();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt= conn.prepareStatement(SELECT_ALL_PEDIDO_PLANTA);
+			pstmt.setInt(1, id_planta);
+			rs = pstmt.executeQuery();
+			Pedido p = new Pedido();
+			while(rs.next()) {
+				p.setNroOrden(rs.getInt("NUMERO_ORDEN"));
+				
+				//PLANTA
+				PlantaDaoMySql plantaDao = new PlantaDaoMySql();
+				p.setDestino(plantaDao.buscarPorId(rs.getInt("PLANTA_DESTINO")));
+				//
+				
+				p.setFechaSolicitud(rs.getDate("FECHA_SOLICITUD"));
+				p.setFechaEntrega(rs.getDate("FECHA_ENTREGA"));
+				p.setEstado(Estado.valueOf(rs.getString("ESTADO")));
+				p.setItems(this.buscarPorId(p.getNroOrden()));
+				PreparedStatement pstmt2 = null;
+				ResultSet rs2 = null;
+				try{
+					pstmt2 = conn.prepareStatement(SELECT_ID_ENVIO);
+					rs2 = pstmt2.executeQuery();
+					while(rs2.next()) {
+						Envio e = new Envio();
+						e.setId(rs2.getInt("ID"));
+						e.setCosto(rs2.getDouble("COSTO"));
+						
+						//CAMION
+						CamionDaoMySql camionDao = new CamionDaoMySql();
+						e.setCamionAsignado(camionDao.buscarPorId(rs2.getInt("CAMION")));
+						//
+						
+						//RUTA
+						RutaDaoMySql rutaDao = new RutaDaoMySql();
+						e.setRutaElegida(rutaDao.buscarPorId(rs2.getInt("RUTA")));
+						//
+						
 					}
 				} catch (SQLException e) {
 					e.printStackTrace();

@@ -28,6 +28,10 @@ public class CamionDaoMySql implements CamionDao {
 			"SELECT ID, PATENTE, MARCA, MODELO, KM FROM CAMION " +
 			"WHERE ID = ?";
 	
+	private static final String SELECT_ALL_PLANTA =
+			"SELECT ID, PATENTE, MARCA, MODELO, KM FROM CAMION, CAMION_PLANTA " +
+			"WHERE CAMION.ID = CAMION_PLANTA.ID_CAMION AND ID_PLANTA = ?";
+	
 	private static final String DELETE_CAMION = 
 			"DELETE FROM CAMION " +
 			"WHERE ID = ?";
@@ -124,6 +128,40 @@ public class CamionDaoMySql implements CamionDao {
 		try {
 			pstmt= conn.prepareStatement(SELECT_ALL_CAMION);
 			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				Camion c = new Camion();
+				c.setId(rs.getInt("ID"));
+				c.setMarca(rs.getString("MARCA"));
+				c.setModelo(rs.getString("MODELO"));
+				c.setPatente(rs.getString("PATENTE"));
+				c.setKmRecorridos(rs.getDouble("KM"));
+				lista.add(c);
+			}			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(rs!=null) rs.close();
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}	
+		System.out.println("Resultado "+lista);
+		return lista;
+	}
+
+	public List<Camion> buscarTodosPorPlanta(Integer id_planta) {
+		List<Camion> lista = new ArrayList<Camion>();
+		Connection conn = BD.getConexion();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt= conn.prepareStatement(SELECT_ALL_PLANTA);
+			pstmt.setInt(1, id_planta);
+			rs = pstmt.executeQuery();
+			
 			while(rs.next()) {
 				Camion c = new Camion();
 				c.setId(rs.getInt("ID"));

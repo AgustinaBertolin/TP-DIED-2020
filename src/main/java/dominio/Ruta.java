@@ -9,7 +9,7 @@ public class Ruta {
 	private Planta destino;
 	private Double distanciaKM;
 	private Time duracion; 
-	private int pesoMaxPorDia;
+	private Double pesoMaxPorDia;
 	
 	
 	public Integer getId() {
@@ -42,10 +42,10 @@ public class Ruta {
 	public void setDuracion(Time duracion) {
 		this.duracion = duracion;
 	}
-	public int getPesoMaxPorDia() {
+	public Double getPesoMaxPorDia() {
 		return pesoMaxPorDia;
 	}
-	public void setPesoMaxPorDia(int pesoMaxPorDia) {
+	public void setPesoMaxPorDia(Double pesoMaxPorDia) {
 		this.pesoMaxPorDia = pesoMaxPorDia;
 	}
 

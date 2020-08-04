@@ -105,7 +105,7 @@ public class BD {
 			"CREATE TABLE  IF NOT EXISTS `died`.`stock` ( " +
 			"		  `ID_REGISTRO` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `ID_PLANTA` INT NOT NULL, " +
-			"		  `INSUMO` VARCHAR(30) NOT NULL, " +
+			"		  `INSUMO` INT NOT NULL, " +
 			"		  `CANTIDAD` INT NULL, " +
 			"		  `PUNTO_REPOSICION` INT NULL, " +
 			"		  PRIMARY KEY (`ID_REGISTRO`, `ID_PLANTA`, `INSUMO`) " +

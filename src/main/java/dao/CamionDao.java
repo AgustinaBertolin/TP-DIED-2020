@@ -10,5 +10,6 @@ public interface CamionDao {
 	public Camion buscarPorId(Integer id);
 	public void borrar(Integer id);
 	public List<Camion> buscarTodos();
+	public List<Camion> buscarTodosPorPlanta(Integer id_planta);
 	
 }
