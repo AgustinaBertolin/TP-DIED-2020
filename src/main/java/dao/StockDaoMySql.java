@@ -17,7 +17,7 @@ public class StockDaoMySql implements StockDao {
 			" WHERE ID_REGISTRO = ?";
 	
 	private static final String INSERT_STOCK =
-			" INSERT INTO `tp_integrador`.`stock` (ID_REGISTRO, ID_PLANTA, INSUMO, CANTIDAD, PUNTO_REPOSICION) VALUES (?,?,?,?,?)";
+			" INSERT INTO `tp_integrador`.`stock` ( ID_PLANTA, INSUMO, CANTIDAD, PUNTO_REPOSICION) VALUES (?,?,?,?)";
 	
 	private static final String SELECT_ID = 
 			" SELECT * FROM `tp_integrador`.`stock`"+
@@ -52,11 +52,10 @@ public class StockDaoMySql implements StockDao {
 				System.out.println("EJECUTA INSERT");
 				
 				pstmt= conn.prepareStatement(INSERT_STOCK);
-				pstmt.setInt(1,  s.getIdRegistro());
-				pstmt.setInt(2, id_planta);
-				pstmt.setInt(3, s.getInsumo().getId()); 
-				pstmt.setInt(4, s.getCantidad());
-				pstmt.setInt(5, s.getPuntoDeReposicion());
+				pstmt.setInt(1, id_planta);
+				pstmt.setInt(2, s.getInsumo().getId()); 
+				pstmt.setInt(3, s.getCantidad());
+				pstmt.setInt(4, s.getPuntoDeReposicion());
 				
 			}
 			pstmt.executeUpdate();

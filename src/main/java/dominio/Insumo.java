@@ -10,6 +10,7 @@ public abstract class Insumo {
 	protected String descripcion;
 	protected UnidadDeMedida unidadDeMedida;
 	protected Double costo;
+	protected Integer cantidad = 0;
 	
 	public Integer getId() {
 		return id;
@@ -37,6 +38,19 @@ public abstract class Insumo {
 		this.costo = costo;
 	}
 	
+	public Integer getCantidad() {
+		return cantidad;
+	}
+	
+	public void setCantidad(Integer cantidad) {
+		this.cantidad = cantidad;
+	}
+	
+	public void sumCantidad(Integer sum) {
+		this.cantidad += sum;
+	}
+	
 	public abstract Double pesoPorUnidad();
+	
 	
 }

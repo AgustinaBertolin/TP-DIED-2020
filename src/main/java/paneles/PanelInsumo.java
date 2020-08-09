@@ -12,7 +12,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -117,11 +116,6 @@ public class PanelInsumo extends JPanel {
 		
 		JScrollPane tableSP = new JScrollPane(tablaInsumo);
 		tableSP.setPreferredSize(new Dimension(1200, 500));
-
-		//	modeloInsumo.getColumn(0).setPreferredWidth(50);
-		//modeloInsumo.getColumn(1).setPreferredWidth(150);
-		//modeloInsumo.getColumn(2).setPreferredWidth(100);
-		//modeloInsumo.getColumn(3).setPreferredWidth(180);
 		 
 	    GridBagConstraints constraints = new GridBagConstraints();
 	    constraints.anchor = GridBagConstraints.CENTER;
@@ -177,12 +171,11 @@ public class PanelInsumo extends JPanel {
     	JLabel pesoEtiqueta = new JLabel("Peso: ");
         
     	//Campos
-        final JTextField textoDescripcion = new JTextField(30);
+        final JTextField textoDescripcion = new JTextField(20);
         final JComboBox<UnidadDeMedida> unidadDeMedidaComboBox = new JComboBox<UnidadDeMedida>(); 
         unidadDeMedidaComboBox.setModel(new DefaultComboBoxModel<UnidadDeMedida>(UnidadDeMedida.values()));
-        final JTextField textoCosto = new JTextField(30);
-        final JTextField textoDensidad = new JTextField(30);
-        final JTextField textoPeso = new JTextField(30);
+        final JTextField textoCosto = new JTextField(20);
+        final JTextField textoTipo = new JTextField(20);
         
         final JPanel panelTipo = new JPanel();
         CardLayout tipoLayout = new CardLayout();
@@ -205,7 +198,7 @@ public class PanelInsumo extends JPanel {
         panelGeneral.add(pesoEtiqueta, constraintsGeneral);
         
         constraintsGeneral.gridx = 3;
-        panelGeneral.add(textoPeso, constraintsGeneral);
+        panelGeneral.add(textoTipo, constraintsGeneral);
         
         panelLiquido.setLayout(new GridBagLayout());
         GridBagConstraints constraintsLiquido = new GridBagConstraints();
@@ -217,7 +210,7 @@ public class PanelInsumo extends JPanel {
         panelLiquido.add(densidadEtiqueta, constraintsLiquido);
         
         constraintsLiquido.gridx = 1;
-        panelLiquido.add(textoDensidad, constraintsLiquido);
+        panelLiquido.add(textoTipo, constraintsLiquido);
         
         final JRadioButton botonIGeneral = new JRadioButton("Insumo General");
         botonIGeneral.setMnemonic(KeyEvent.VK_B);
@@ -306,25 +299,38 @@ public class PanelInsumo extends JPanel {
 				if(		textoDescripcion.getText().length() == 0 ||
 						textoCosto.getText().length() == 0 ||
 						unidadDeMedidaComboBox.getSelectedItem().toString() == "Seleccione una Opcion" ||
-						botonIGeneral.isSelected() && textoPeso.getText().length() == 0 || 
-						botonILiquido.isSelected() && textoDensidad.getText().length() == 0 ) {
+						textoTipo.getText().length() == 0 ) {
 					JOptionPane.showMessageDialog(new JPanel(), "Error: Uno de los campos se encuentra vacío", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 				else {
+					
+					Double costo;
+					Double tipo;
+					try {
+						costo = Double.parseDouble(textoCosto.getText());
+						tipo = Double.parseDouble(textoTipo.getText());
+					} catch (NumberFormatException e) {
+						JOptionPane.showMessageDialog(new JFrame(), "Uno o más datos ingresados no son válidos",
+								"Información", JOptionPane.INFORMATION_MESSAGE);
+
+						return;
+					}
 					Insumo i;
 					
 					if(botonIGeneral.isSelected()) {
+						
+
 						i = new InsumoGeneral();
-						((InsumoGeneral)i).setPeso(Double.valueOf(textoPeso.getText()));
+						((InsumoGeneral)i).setPeso(tipo);
 					}
 					else {
 						i = new InsumoLiquido();
-						((InsumoLiquido)i).setDensidad(Double.valueOf(textoDensidad.getText()));
+						((InsumoLiquido)i).setDensidad(tipo);
 					}
 					
 					i.setDescripcion(textoDescripcion.getText());
 					i.setUnidadDeMedida(UnidadDeMedida.valueOf(unidadDeMedidaComboBox.getSelectedItem().toString()));
-					i.setCosto(Double.valueOf(textoCosto.getText()));
+					i.setCosto(costo);
 				
 					service.saveOrUpdate(i);
 					actualizarTabla();
@@ -429,16 +435,28 @@ public class PanelInsumo extends JPanel {
 					JOptionPane.showMessageDialog(getParent(), "Error: Uno de los campos se encuentra vacío", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 				else {
+					
+					Double costo;
+					Double tipo;
+					try {
+						costo = Double.parseDouble(textoCosto.getText());
+						tipo = Double.parseDouble(textoTipo.getText());
+					} catch (NumberFormatException e) {
+						JOptionPane.showMessageDialog(new JFrame(), "Uno o más datos ingresados no son válidos",
+								"Información", JOptionPane.INFORMATION_MESSAGE);
+
+						return;
+					}
 					if(i instanceof InsumoGeneral) {
-						((InsumoGeneral)i).setPeso(Double.valueOf(textoTipo.getText()));
+						((InsumoGeneral)i).setPeso(tipo);
 					}
 					else {
-						((InsumoLiquido)i).setDensidad(Double.valueOf(textoTipo.getText()));
+						((InsumoLiquido)i).setDensidad(tipo);
 					}
 					
 					i.setDescripcion(textoDescripcion.getText());
 					i.setUnidadDeMedida(UnidadDeMedida.valueOf(unidadDeMedidaComboBox.getSelectedItem().toString()));
-					i.setCosto(Double.valueOf(textoCosto.getText()));
+					i.setCosto(costo);
 				
 					service.saveOrUpdate(i);
 					actualizarTabla();
@@ -472,10 +490,11 @@ public class PanelInsumo extends JPanel {
 				
 				PlantaService serviceP = new PlantaService();
 				List<Planta> plantas = serviceP.buscarTodos();
-				List<Stock> stock = new ArrayList<Stock>();
 				
 				for(Planta p: plantas) {
-					stock.addAll(p.getStock());
+					for(Stock s: p.getStock()) {
+						s.getInsumo().sumCantidad(s.getCantidad());
+					}
 				}
 			
 				for(Insumo i: insumos) {
@@ -485,14 +504,7 @@ public class PanelInsumo extends JPanel {
 					Double costo = i.getCosto();
 					String tipo;
 					Double peso = i.pesoPorUnidad();
-					int stockTotal = 0;
-					
-					for(Stock s: stock) {
-						if(s.getInsumo().getId() == id) {
-							stockTotal += s.getCantidad();
-							stock.remove(s); //ver
-						}
-					}
+					Integer stockTotal = i.getCantidad();
 					
 					if(i instanceof InsumoGeneral) {
 						tipo = "General";

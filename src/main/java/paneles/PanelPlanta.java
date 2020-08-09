@@ -38,7 +38,9 @@ import servicios.RutaService;
 public class PanelPlanta extends JPanel {
 
 	private DefaultTableModel modeloPlanta;
+	private DefaultTableModel modeloStock;
 	private JTable tablaPlanta;
+	private JTable tablaStock;
 	private JButton borrar;
 	private JButton crear;
 	private JButton modificar;
@@ -55,12 +57,18 @@ public class PanelPlanta extends JPanel {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		JPanel panelTitulo = new JPanel(new GridBagLayout());
 
-		//Crear tabla
+		//Crear tabla Plantas
 		tablaPlanta = new JTable(modeloPlanta);
 		add(tablaPlanta);
 		actualizarTabla();
 		tablaPlanta.setDefaultEditor(Object.class, null);
 
+		//Crear tabla Stock
+		tablaStock = new JTable(modeloStock);
+		add(tablaStock);
+		actualizarTablaStock(null, null);
+		tablaStock.setDefaultEditor(Object.class, null);
+		
 		//Crear botones
 
 		//Boton BORRAR
@@ -147,38 +155,53 @@ public class PanelPlanta extends JPanel {
 			
 		});
 		
-		JScrollPane tableSP = new JScrollPane(tablaPlanta);
-		tableSP.setPreferredSize(new Dimension(1200, 500));
-		 
-	    GridBagConstraints constraints = new GridBagConstraints();
-	    constraints.anchor = GridBagConstraints.CENTER; 
-	    constraints.insets = new Insets(10, 10, 10, 10);
+		//Titulo, paso a main?
+	    GridBagConstraints constraintsTitulo = new GridBagConstraints();
+	    constraintsTitulo.anchor = GridBagConstraints.CENTER; 
+	    constraintsTitulo.insets = new Insets(10, 10, 10, 10);
 	          
-	    constraints.gridx = 2;
-	    constraints.gridy = 0;     
+	    constraintsTitulo.gridx = 5;
+	    constraintsTitulo.gridy = 0;     
 	    JLabel titulos = new JLabel("Control de Plantas");
 	    titulos.setFont(new Font("Panel Plantas", Font.TYPE1_FONT, 30));
 	    titulos.setSize(new Dimension(300, 400));
-	    panelTitulo.add(titulos, constraints);
+	    panelTitulo.add(titulos, constraintsTitulo);
 	    
-	    // add components to the panel
+	    //Panel Planta
+	    
+	    JPanel panelPlanta = new JPanel();
+	    panelPlanta.setLayout(new BoxLayout(panelPlanta, BoxLayout.PAGE_AXIS));
+	    
+	    // Botones tabla Planta
+	    JPanel botonesPlanta = new JPanel(new GridBagLayout());
+	    GridBagConstraints constraints = new GridBagConstraints();
+	    constraints.anchor = GridBagConstraints.CENTER; 
+	    constraints.insets = new Insets(0, 5, 10, 10);
+	    
 	    constraints.gridx = 0;
-	    constraints.gridy = 1;     
-	    panelTitulo.add(borrar, constraints);
+	    constraints.gridy = 0;     
+	    botonesPlanta.add(borrar, constraints);
 	  
 	    constraints.gridx = 1;
-	    panelTitulo.add(modificar, constraints);
+	    botonesPlanta.add(modificar, constraints);
 	          
 	    constraints.gridx = 2;    
-	    panelTitulo.add(crear, constraints);
+	    botonesPlanta.add(crear, constraints);
 	          
 	    constraints.gridx = 3;
-	    panelTitulo.add(actualizarStock, constraints);
+	    botonesPlanta.add(actualizarStock, constraints);
 	    
 	    constraints.gridx = 4;
-	    panelTitulo.add(agregarRuta, constraints);
+	    botonesPlanta.add(agregarRuta, constraints);
 	    
-	    JPanel panelTabla = new JPanel(new GridBagLayout());
+	    panelPlanta.add(botonesPlanta);
+	    
+	    //tabla plantas
+	    JScrollPane tableSP = new JScrollPane(tablaPlanta);
+		tableSP.setPreferredSize(new Dimension(600, 500)); //ver
+		
+	    JPanel panelTablaP = new JPanel(new GridBagLayout());
+	    
 	    GridBagConstraints constraintsTabla = new GridBagConstraints();
 	    constraintsTabla.anchor = GridBagConstraints.BOTH;
 	    constraintsTabla.insets = new Insets(0, 0, 0, 5);
@@ -186,10 +209,69 @@ public class PanelPlanta extends JPanel {
 	    constraintsTabla.gridx = 1;
 	    constraintsTabla.gridwidth = 8;
 	    constraintsTabla.anchor = GridBagConstraints.CENTER;
-	    panelTabla.add(tableSP, constraintsTabla);
+	    panelTablaP.add(tableSP, constraintsTabla);
 	    
+	    panelPlanta.add(panelTablaP);
+	    
+	    //Panel Stock
+	    JPanel panelStock = new JPanel();
+	    panelStock.setLayout(new BoxLayout(panelStock, BoxLayout.PAGE_AXIS));
+	    
+	    //Botones stock
+	    JLabel plantaEtiqueta = new JLabel("Planta");
+	    JLabel insumoEtiqueta = new JLabel("Insumo");
+	    
+	    final JTextField textoPlanta = new JTextField(20);
+	    final JTextField textoInsumo = new JTextField(20);
+	    
+	    JButton filtrar = new JButton ("Filtrar");
+	    filtrar.addActionListener( new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+				
+				actualizarTablaStock(textoPlanta.getText(), textoInsumo.getText());
+				
+			}
+	    	
+	    });
+	    
+	    JPanel botonesStock = new JPanel(new GridBagLayout());
+	    
+	    constraints.gridx = 0;
+	    constraints.gridy = 0;     
+	    botonesStock.add(plantaEtiqueta, constraints);
+	  
+	    constraints.gridx = 1;
+	    botonesStock.add(textoPlanta, constraints);
+	          
+	    constraints.gridx = 2;    
+	    botonesStock.add(insumoEtiqueta, constraints);
+	          
+	    constraints.gridx = 3;
+	    botonesStock.add(textoInsumo, constraints);
+	    
+	    constraints.gridx = 4;
+	    botonesStock.add(filtrar, constraints);
+	    
+	    panelStock.add(botonesStock);
+	    
+	    //Panel tabla stock
+	    JScrollPane tablaSP = new JScrollPane(tablaStock);
+		tablaSP.setPreferredSize(new Dimension(600, 500)); //ver
+	    JPanel panelTablaS = new JPanel(new GridBagLayout());
+	    
+	    panelTablaS.add(tablaSP, constraintsTabla);
+	    panelStock.add(panelTablaS);
+	    
+	    //Agregamos panel Titulo, panelPlanta y panel Stock a la pantalla 
 	    add(panelTitulo);
-	    add(panelTabla);
+	    
+	    JPanel tablas = new JPanel();
+	    tablas.setLayout(new BoxLayout(tablas, BoxLayout.LINE_AXIS));
+	    tablas.add(panelPlanta);
+	    tablas.add(panelStock);
+	    
+	    add(tablas);
 	    
 	}
 	
@@ -206,7 +288,7 @@ public class PanelPlanta extends JPanel {
         JLabel tipoEtiqueta = new JLabel("Tipo: ");
         
     	//Campos
-        final JTextField textoNombre = new JTextField(30);
+        final JTextField textoNombre = new JTextField(20);
         final JComboBox<TipoPlanta> tipoComboBox = new JComboBox<TipoPlanta>(); 
         tipoComboBox.setModel(new DefaultComboBoxModel<TipoPlanta>(TipoPlanta.values()));
         
@@ -248,7 +330,7 @@ public class PanelPlanta extends JPanel {
 					case Acopio_Final:
 						List<Planta> aux = service.buscarTodos();
 						int i = 0;
-						while(todoOk && !aux.get(i).equals(null)) {
+						while(todoOk && i < aux.size()) {
 							if(aux.get(i).getTipoPlanta() == TipoPlanta.Acopio_Final) todoOk = false;
 							i++;
 						}
@@ -256,7 +338,7 @@ public class PanelPlanta extends JPanel {
 					case Acopio_Puerto:
 						List<Planta> aux2 = service.buscarTodos();
 						int j = 0;
-						while(todoOk && !aux2.get(j).equals(null)) {
+						while(todoOk && j < aux2.size()) {
 							if(aux2.get(j).getTipoPlanta() == TipoPlanta.Acopio_Puerto) todoOk = false;
 							j++;
 						}
@@ -293,9 +375,10 @@ public class PanelPlanta extends JPanel {
   
         panelCrear.add(panelBoton);
         dialogo.add(panelCrear);  
-        dialogo.setSize(400, 300); 
+        dialogo.setSize(300, 200); 
         dialogo.setVisible(true); 
 	}
+	
 	
 	public void modificarPlanta(final Planta p) {
         
@@ -310,7 +393,7 @@ public class PanelPlanta extends JPanel {
         JLabel tipoEtiqueta = new JLabel("Tipo: ");
         
     	//Campos
-        final JTextField textoNombre = new JTextField(p.getNombre(), 30);
+        final JTextField textoNombre = new JTextField(p.getNombre(), 20);
         final JComboBox<TipoPlanta> tipoComboBox = new JComboBox<TipoPlanta>(); 
         tipoComboBox.setModel(new DefaultComboBoxModel<TipoPlanta>(TipoPlanta.values()));
         tipoComboBox.setSelectedItem(p.getTipoPlanta());
@@ -443,6 +526,17 @@ public class PanelPlanta extends JPanel {
 					JOptionPane.showMessageDialog(getParent(), "Error: Uno de los campos se encuentra vacío", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 				else {
+					Integer cantidad;
+					Integer ptoPedido;
+					try {
+						cantidad = Integer.parseInt(textoCantidad.getText());
+						ptoPedido = Integer.parseInt(textoPtoPedido.getText());
+					} catch (NumberFormatException e) {
+						JOptionPane.showMessageDialog(new JFrame(), "Uno o más datos ingresados no son válidos",
+								"Información", JOptionPane.INFORMATION_MESSAGE);
+
+						return;
+					}
 					Stock s = new Stock();
 					String d = insumoComboBox.getSelectedItem().toString();
 					boolean encontrado = false;
@@ -454,11 +548,11 @@ public class PanelPlanta extends JPanel {
 						}
 						j++;
 					}
-					s.setCantidad(Integer.valueOf(textoCantidad.getText()));
-					s.setPuntoDeReposicion(Integer.valueOf(textoPtoPedido.getText()));
+					s.setCantidad(cantidad);
+					s.setPuntoDeReposicion(ptoPedido);
 					p.agregarStock(s);
 					service.crearPlanta(p);
-					//actualizarTabla();
+					actualizarTablaStock(null, null);
 					dialogo.dispose();
 					
 				}
@@ -579,6 +673,19 @@ public class PanelPlanta extends JPanel {
 						JOptionPane.showMessageDialog(getParent(), "Error: No se puede crear una ruta desde una planta hacia si misma", "Error", JOptionPane.ERROR_MESSAGE);
 					}
 					else {
+						Double distancia;
+						Integer duracion;
+						Double pesoMax;
+						try {
+							distancia = Double.parseDouble(textoDistancia.getText());
+							pesoMax = Double.parseDouble(textoPeso.getText());
+							duracion = Integer.parseInt(textoDuracion.getText());
+						} catch (NumberFormatException e) {
+							JOptionPane.showMessageDialog(new JFrame(), "Uno o más datos ingresados no son válidos",
+									"Información", JOptionPane.INFORMATION_MESSAGE);
+
+							return;
+						}
 						Planta po = null;
 						Planta pd = null;
 						int i = 0;
@@ -597,9 +704,9 @@ public class PanelPlanta extends JPanel {
 						Ruta r = new Ruta();
 						r.setOrigen(po);
 						r.setDestino(pd);
-						r.setDistanciaKM(Double.valueOf(textoDistancia.getText()));
-						r.setDuracion(Integer.valueOf(textoDuracion.getText()));
-						r.setPesoMaxPorDia(Double.valueOf(textoPeso.getText()));
+						r.setDistanciaKM(distancia);
+						r.setDuracion(duracion);
+						r.setPesoMaxPorDia(pesoMax);
 						
 						RutaService rs = new RutaService();
 						rs.saveOrUpdate(r);
@@ -625,6 +732,7 @@ public class PanelPlanta extends JPanel {
 	}
 	
 	public void actualizarTabla() {
+
 		//crear modelo tabla
 				String[] columnas = {"Id", "Nombre", "Tipo"};
 				modeloPlanta = new DefaultTableModel(columnas, 0);
@@ -645,5 +753,47 @@ public class PanelPlanta extends JPanel {
 				tablaPlanta.setModel(modeloPlanta);
 
 	}
+
+	public void actualizarTablaStock(String planta, String insumo) {
+
+				boolean plantaB = planta == null;
+				boolean insumoB = insumo == null;
+				
+				//crear modelo tabla
+				String[] columnas = {"Planta", "Insumo", "Stock", "Punto de pedido", "Stock total"};
+				modeloStock = new DefaultTableModel(columnas, 0);
+				
+				//buscar datos de la db
+				List<Planta> plantas = service.buscarTodos();
+				for(Planta p: plantas) {
+					for(Stock s: p.getStock()) {
+						s.getInsumo().sumCantidad(s.getCantidad());
+					}
+				}
+			
+				for(Planta p: plantas) {
+					String nombre = p.getNombre();
+					
+					if(plantaB || nombre.contains(planta)) {
+						for(Stock s: p.getStock()) {
+							if(s.getCantidad() < s.getPuntoDeReposicion() && (insumoB || s.getInsumo().getDescripcion().contains(insumo))) {
+								String i = s.getInsumo().getDescripcion();
+								Integer cantidad = s.getCantidad();
+								Integer ptoP = s.getPuntoDeReposicion();
+								Integer cantTot = s.getInsumo().getCantidad();
+
+								Object[] renglon = {nombre, i, cantidad, ptoP, cantTot};
+								modeloStock.addRow(renglon);
+							}
+					}
+					}
+				}
+
+				//actualizar modelo
+				tablaStock.setModel(modeloStock);
+
+	}
 	
+
 }
+

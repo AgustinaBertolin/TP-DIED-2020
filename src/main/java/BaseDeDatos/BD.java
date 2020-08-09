@@ -16,9 +16,9 @@ public class BD {
 			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`camion` ( " +
 			"		  `ID` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `PATENTE` VARCHAR(14) NULL, " +
-			"		  `MARCA` VARCHAR(45) NULL, " +
-			"		  `MODELO` VARCHAR(45) NULL, " +
-			"		  `KM` VARCHAR(45) NULL, " +
+			"		  `MARCA` VARCHAR(25) NULL, " +
+			"		  `MODELO` VARCHAR(25) NULL, " +
+			"		  `KM` DECIMAL(12,2) NULL, " +
 			"		  `COSTO_KM` DECIMAL(12,2) NULL, " +
 			"		  `COSTO_HORA` DECIMAL(12,2) NULL, " +
 			"		  `FECHA_COMPRA` DATETIME NULL, " +
@@ -28,7 +28,7 @@ public class BD {
 			"CREATE TABLE IF NOT EXISTS `tp_integrador`.`planta` (" +
 			"		  `ID` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `NOMBRE` VARCHAR(20) NULL, " +
-			"		  `TIPO` VARCHAR(20) NULL, " +
+			"		  `TIPO` VARCHAR(15) NULL, " +
 			"		  PRIMARY KEY  (`ID`)) ;";
 	
 	private static final String TABLA_CREATE_CAMION_PLANTA = //bien
@@ -42,7 +42,7 @@ public class BD {
 	private static final String TABLA_CREATE_INSUMO = //bien
 			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`insumo` ( "+
 			"		  `ID` INT NOT NULL AUTO_INCREMENT, "+
-			"		  `DESCRIPCION` VARCHAR(30) NOT NULL, "+
+			"		  `DESCRIPCION` VARCHAR(20) NOT NULL, "+
 			"		  `UNIDAD_DE_MEDIDA` VARCHAR(10) NOT NULL, "+
 			"		  `COSTO` DECIMAL(12,2) NULL, "+
 			"		  `PESO` DECIMAL(12,2) NULL, " +
@@ -120,38 +120,31 @@ public class BD {
 			Statement stmt6 = null;
 			Statement stmt7 = null;
 			Statement stmt8 = null;
-			Statement stmt9 = null;
-			Statement stmt0 = null;
 			try {
 				stmt = conn.createStatement();
 				stmt1 = conn.createStatement();
 				stmt2 = conn.createStatement();
 				stmt3 = conn.createStatement();
-				//stmt4 = conn.createStatement();
-				//stmt5 = conn.createStatement();
+				stmt4 = conn.createStatement();
+				stmt5 = conn.createStatement();
 				stmt6 = conn.createStatement();
 				stmt7 = conn.createStatement();
 				stmt8 = conn.createStatement();
-				stmt9 = conn.createStatement();
-				stmt0 = conn.createStatement();
 
 				boolean tablaCamion = stmt.execute(TABLA_CREATE_CAMION); 
 				boolean tablaPlanta = stmt1.execute(TABLA_CREATE_PLANTA);
 				boolean tablaCamionPlanta = stmt2.execute(TABLA_CREATE_CAMION_PLANTA);
 				boolean tablaInsumo = stmt3.execute(TABLA_CREATE_INSUMO);
-				//boolean tablaInsumoG = stmt4.execute(TABLA_CREATE_INSUMO_GENERAL);
-				//boolean tablaInsumoL = stmt5.execute(TABLA_CREATE_INSUMO_LIQUIDO);
-				boolean tablaRuta = stmt6.execute(TABLA_CREATE_RUTA);
-				boolean tablaPedido = stmt7.execute(TABLA_CREATE_PEDIDO);
-				boolean tablaItem = stmt8.execute(TABLA_CREATE_ITEM);
-				boolean tablaEnvio = stmt9.execute(TABLA_CREATE_ENVIO);
-				boolean tablaStock = stmt0.execute(TABLA_CREATE_STOCK);
+				boolean tablaRuta = stmt4.execute(TABLA_CREATE_RUTA);
+				boolean tablaPedido = stmt5.execute(TABLA_CREATE_PEDIDO);
+				boolean tablaItem = stmt6.execute(TABLA_CREATE_ITEM);
+				boolean tablaEnvio = stmt7.execute(TABLA_CREATE_ENVIO);
+				boolean tablaStock = stmt8.execute(TABLA_CREATE_STOCK);
+				
 				_TABLAS_CREADAS = tablaCamion && 
 								  tablaPlanta && 
 								  tablaCamionPlanta && 
-								  tablaInsumo && 
-					//			  tablaInsumoG && 
-						//		  tablaInsumoL && 
+								  tablaInsumo &&  
 								  tablaRuta && 
 								  tablaPedido && 
 								  tablaItem && 
@@ -167,13 +160,11 @@ public class BD {
 						if(stmt1!=null) stmt1.close();
 						if(stmt2!=null) stmt2.close();
 						if(stmt3!=null) stmt3.close();
-					//	if(stmt4!=null) stmt4.close();
-						//if(stmt5!=null) stmt5.close();
+						if(stmt4!=null) stmt4.close();
+						if(stmt5!=null) stmt5.close();
 						if(stmt6!=null) stmt6.close();
 						if(stmt7!=null) stmt7.close();
 						if(stmt8!=null) stmt8.close();
-						if(stmt9!=null) stmt9.close();
-						if(stmt0!=null) stmt0.close();
 						if(conn!=null) conn.close();
 					} catch (SQLException e) {
 						e.printStackTrace();
