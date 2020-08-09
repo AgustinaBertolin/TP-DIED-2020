@@ -13,21 +13,21 @@ import dominio.Stock;
 public class StockDaoMySql implements StockDao {
 
 	private static final String UPDATE_STOCK =
-			" UPDATE STOCK SET ID_PLANTA = ?, INSUMO = ?, CANTIDAD = ?, PUNTO_REPOSICION = ?" + 
+			" UPDATE `tp_integrador`.`stock` SET ID_PLANTA = ?, INSUMO = ?, CANTIDAD = ?, PUNTO_REPOSICION = ?" + 
 			" WHERE ID_REGISTRO = ?";
 	
 	private static final String INSERT_STOCK =
-			" INSERT INTO STOCK (ID_REGISTRO, ID_PLANTA, INSUMO, CANTIDAD, PUNTO_REPOSICION) VALUES (?,?,?,?,?)";
+			" INSERT INTO `tp_integrador`.`stock` (ID_REGISTRO, ID_PLANTA, INSUMO, CANTIDAD, PUNTO_REPOSICION) VALUES (?,?,?,?,?)";
 	
 	private static final String SELECT_ID = 
-			" SELECT * FROM STOCK"+
+			" SELECT * FROM `tp_integrador`.`stock`"+
 			" WHERE ID_PLANTA = ?";
 	
 	private static final String SELECT_ALL = 
-			" SELECT * FROM STOCK";
+			" SELECT * FROM `tp_integrador`.`stock`";
 	
 	private static final String DELETE_STOCK =
-			" DELETE FROM STOCK"+
+			" DELETE FROM `tp_integrador`.`stock`"+
 			" WHERE ID = ?";
 	
 	public Stock saveOrUpdate(Stock s, Integer id_planta) {

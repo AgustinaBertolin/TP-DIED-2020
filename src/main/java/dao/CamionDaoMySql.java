@@ -15,25 +15,25 @@ public class CamionDaoMySql implements CamionDao {
 
 
 	private static final String SELECT_ALL_CAMION =
-			"SELECT ID,PATENTE,MARCA,MODELO,KM FROM CAMION";
+			"SELECT ID,PATENTE,MARCA,MODELO,KM FROM `tp_integrador`.`camion`";
 	
 	private static final String INSERT_CAMION =
-			"INSERT INTO CAMION (PATENTE,MARCA,MODELO,KM) VALUES (?,?,?,?)";
+			"INSERT INTO `tp_integrador`.`camion` (PATENTE,MARCA,MODELO,KM) VALUES (?,?,?,?)";
 	
 	private static final String UPDATE_CAMION =
-			" UPDATE CAMION SET PATENTE = ?, MARCA =? ,MODELO = ? , KM =? "
+			" UPDATE `tp_integrador`.`camion` SET PATENTE = ?, MARCA =? ,MODELO = ? , KM =? "
 			+ " WHERE ID = ?";
 	
 	private static final String SELECT_ID =
-			"SELECT ID, PATENTE, MARCA, MODELO, KM FROM CAMION " +
+			"SELECT ID, PATENTE, MARCA, MODELO, KM FROM `tp_integrador`.`camion` " +
 			"WHERE ID = ?";
 	
 	private static final String SELECT_ALL_PLANTA =
-			"SELECT ID, PATENTE, MARCA, MODELO, KM FROM CAMION, CAMION_PLANTA " +
-			"WHERE CAMION.ID = CAMION_PLANTA.ID_CAMION AND ID_PLANTA = ?";
+			"SELECT ID, PATENTE, MARCA, MODELO, KM FROM `tp_integrador`.`camion`, `tp_integrador`.`camion_planta` " +
+			"WHERE `tp_integrador`.`camion`.ID = `tp_integrador`.`camion_planta`.ID_CAMION AND ID_PLANTA = ?";
 	
 	private static final String DELETE_CAMION = 
-			"DELETE FROM CAMION " +
+			"DELETE FROM `tp_integrador`.`camion` " +
 			"WHERE ID = ?";
 	
 	public Camion saveOrUpdate(Camion c) {

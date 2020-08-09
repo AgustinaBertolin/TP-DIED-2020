@@ -16,47 +16,47 @@ import dominio.Pedido.Estado;
 public class PedidoDaoMySql implements PedidoDao {
 	
 	private static final String SELECT_ALL_PEDIDO =
-			" SELECT * FROM PEDIDO";
+			" SELECT * FROM `tp_integrador`.`pedido`";
 	
 	private static final String SELECT_ALL_PEDIDO_PLANTA =
-			" SELECT * FROM PEDIDO"+
+			" SELECT * FROM `tp_integrador`.`pedido`"+
 			" WHERE PLANTA_DESTINO = ?";
 	
 	private static final String SELECT_ID_ITEM =  //BUSCAR INSUMOS?
-			" SELECT * FROM ITEM"+
+			" SELECT * FROM `tp_integrador`.`item`"+
 			" WHERE NUMERO_ORDEN = ?";
 	
 	private static final String SELECT_ID_ENVIO = //BUSCAR RUTA Y CAMION??
-			" SELECT * FROM ENVIO"+
+			" SELECT * FROM `tp_integrador`.`envio`"+
 			" WHERE NUMERO_ORDEN = ?";
 	
 	private static final String SELECT_ESTADO_PEDIDO = 
-			"SELECT * FROM PEDIDO"+
+			"SELECT * FROM `tp_integrador`.`pedido`"+
 			" WHERE ESTADO = ?";
 	
 	private static final String UPDATE_PEDIDO =
-			" UPDATE INSUMO SET PLANTA_DESTINO = ?, FECHA_SOLICITUD =? ,FECHA_ENTREGA = ?, ESTADO = ?" + 
+			" UPDATE `tp_integrador`.`pedido` SET PLANTA_DESTINO = ?, FECHA_SOLICITUD =? ,FECHA_ENTREGA = ?, ESTADO = ?" + 
 			" WHERE NUMERO_ORDEN = ?";
 
 	private static final String UPDATE_ITEM =
-			" UPDATE ITEM SET INSUMO = ?, CANTIDAD = ?"+
+			" UPDATE `tp_integrador`.`item` SET INSUMO = ?, CANTIDAD = ?"+
 			" WHERE NUMERO_ORDEN = ?";
 	
 	private static final String UPDATE_ENVIO =
-			" UPDATE ENVIO RUTA = ?, CAMION = ?, COSTO = ?"+
+			" UPDATE `tp_integrador`.`envio` RUTA = ?, CAMION = ?, COSTO = ?"+
 			" WHERE NUMERO_ORDEN = ? ";
 	
 	private static final String INSERT_ITEM =
-			" INSERT INTO ITEM (NUMERO_ORDEN, INSUMO, CANTIDAD) VALUES (?, ?, ?)";
+			" INSERT INTO `tp_integrador`.`item` (NUMERO_ORDEN, INSUMO, CANTIDAD) VALUES (?, ?, ?)";
 	
 	private static final String INSERT_ENVIO =
-			" INSERT INTO ENVIO (NUMERO_ORDEN, RUTA, CAMION, COSTO) VALUES (?, ?, ?)";
+			" INSERT INTO `tp_integrador`.`envio` (NUMERO_ORDEN, RUTA, CAMION, COSTO) VALUES (?, ?, ?)";
 	
 	private static final String INSERT_PEDIDO =
-			" INSERT INTO PEDIDO (PLANTA_DESTINO, FECHA_SOLICITUD, FECHA_ENTREGA, ESTADO) VALUES (?, ?, ?, ?)";
+			" INSERT INTO `tp_integrador`.`pedido` (PLANTA_DESTINO, FECHA_SOLICITUD, FECHA_ENTREGA, ESTADO) VALUES (?, ?, ?, ?)";
 	
 	private static final String DELETE_PEDIDO =
-			" DELETE FROM PEDIDO"+
+			" DELETE FROM `tp_integrador`.`pedido`"+
 			" WHERE NUMERO_ORDEN = ?";
 	
 	public Pedido saveOrUpdate(Pedido p) {

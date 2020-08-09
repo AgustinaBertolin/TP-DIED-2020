@@ -6,14 +6,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class BD {
-	private static final String url ="jdbc:mysql://localhost:3306/died?useSSL=false";
+	private static final String url ="jdbc:mysql://localhost:3306/tp_integrador?useSSL=false";
 	private static final String user="root";
 	private static final String pass="root";
 	
 	private static boolean _TABLAS_CREADAS = false;
 	
-	private static final String TABLA_CREATE_CAMION = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`camion` ( " +
+	private static final String TABLA_CREATE_CAMION = //BIEN
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`camion` ( " +
 			"		  `ID` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `PATENTE` VARCHAR(14) NULL, " +
 			"		  `MARCA` VARCHAR(45) NULL, " +
@@ -24,107 +24,86 @@ public class BD {
 			"		  `FECHA_COMPRA` DATETIME NULL, " +
 			"		  PRIMARY KEY (`ID`)) ;";
 
-	private static final String TABLA_CREATE_PLANTA = 
-			"CREATE TABLE IF NOT EXISTS `died`.`planta` (" +
+	private static final String TABLA_CREATE_PLANTA = //BIEN
+			"CREATE TABLE IF NOT EXISTS `tp_integrador`.`planta` (" +
 			"		  `ID` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `NOMBRE` VARCHAR(20) NULL, " +
+			"		  `TIPO` VARCHAR(20) NULL, " +
 			"		  PRIMARY KEY  (`ID`)) ;";
 	
-	private static final String TABLA_CREATE_CAMION_PLANTA = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`camion_planta` ( " +
+	private static final String TABLA_CREATE_CAMION_PLANTA = //bien
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`camion_planta` ( " +
 			"		  `ID_PLANTA` INT NOT NULL, " +
 			"		  `ID_CAMION` INT NOT NULL , " +
-			"		  PRIMARY KEY  (`ID_PLANTA`, `ID_CAMION`) "+
-			"		  SECONDARY KEY (`ID_PLANTA`) REFERENCES `died`.`planta` (`ID`) ON DELETE CASCADE, " +
-			"		  SECONDARY KEY (`ID_CAMION`) REFERENCES `died`.`camion` (`ID`) ON DELETE CASCADE);";
+			"		  PRIMARY KEY  (`ID_PLANTA`, `ID_CAMION`), "+
+			"		  FOREIGN KEY (`ID_PLANTA`) REFERENCES `tp_integrador`.`planta`(`ID`) ON DELETE CASCADE," +
+			"		  FOREIGN KEY (`ID_CAMION`) REFERENCES `tp_integrador`.`camion` (`ID`) ON DELETE CASCADE);";
 	
-	private static final String TABLA_CREATE_INSUMO = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`insumo` ( "+
+	private static final String TABLA_CREATE_INSUMO = //bien
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`insumo` ( "+
 			"		  `ID` INT NOT NULL AUTO_INCREMENT, "+
 			"		  `DESCRIPCION` VARCHAR(30) NOT NULL, "+
-			"		  `UNIDAD_DE_MEDIDA` ENUM (`KILO`, `PIEZA`, `GRAMO`, `METRO`, `LITRO`, `M3`, `M2`) NOT NULL, "+
+			"		  `UNIDAD_DE_MEDIDA` VARCHAR(10) NOT NULL, "+
 			"		  `COSTO` DECIMAL(12,2) NULL, "+
+			"		  `PESO` DECIMAL(12,2) NULL, " +
+			"		  `DENSIDAD` DECIMAL(12,2) NULL, " +
 			"		  PRIMARY KEY (`ID`)); ";
 	
-	private static final String TABLA_CREATE_INSUMO_GENERAL = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`insumo_general` ( " +
-			"		  `ID` INT NOT NULL, " +
-			"		  `PESO` DECIMAL(12,2) NULL, " +
-			"		  PRIMARY KEY (`ID`), " +
-			"		  SECONDARY KEY (`ID`) REFERENCES `died`.`insumo` (`ID`) ON DELETE CASCADE) ;";
-	
-	private static final String TABLA_CREATE_INSUMO_LIQUIDO = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`insumo_liquido` ( " +
-			"		  `ID` INT NOT NULL, " +
-			"		  `DENSIDAD` DECIMAL(12,2) NULL, " +
-			"		  PRIMARY KEY (`ID`), " +
-			"		  SECONDARY KEY (`ID`) REFERENCES `died`.`insumo` (`ID`) ON DELETE CASCADE) ;";
-	
-	private static final String TABLA_CREATE_ITEM = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`item` ( " +
+	private static final String TABLA_CREATE_ITEM = //BIEN
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`item` ( " +
 			"		  `ID` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `NUMERO_ORDEN` INT NOT NULL , " +
 			"		  `INSUMO` INT NOT NULL, " +
 			"		  `CANTIDAD` INT NULL, " +
 			"		  PRIMARY KEY (`ID`), " +
-			"		  SECONDARY KEY (`NUMERO_ORDEN`) REFERENCES `died`.`pedido` (`NUMERO_ORDEN`) ON DELETE CASCADE, " +
-			"		  SECONDARY KEY (`INSUMO`) REFERENCES `died`.`insumo` (`ID`) ON DELETE CASCADE);";
+			"		  FOREIGN KEY (`NUMERO_ORDEN`) REFERENCES `tp_integrador`.`pedido` (`NUMERO_ORDEN`) ON DELETE CASCADE, " +
+			"		  FOREIGN KEY (`INSUMO`) REFERENCES `tp_integrador`.`insumo` (`ID`) ON DELETE CASCADE);";
 	
-	private static final String TABLA_CREATE_PEDIDO = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`pedido` ( " +
+	private static final String TABLA_CREATE_PEDIDO = //BIEN
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`pedido` ( " +
 			"		  `NUMERO_ORDEN` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `PLANTA_DESTINO` INT NOT NULL, " +
 			"		  `FECHA_SOLICITUD` DATE NULL, " +
 			"		  `FECHA_ENTREGA` DATE NULL, " +
-			"		  `ESTADO` ENUM (`CREADA`, `PROCESADA`, `ENTREGADA`, `CANCELADO`) NOT NULL, " + 
-			"		  PRIMARY KEY (`ID`)) ;";
+			"		  `ESTADO` varchar(10) NOT NULL, " +
+			"		  FOREIGN KEY (`PLANTA_DESTINO`) REFERENCES `tp_integrador`.`planta` (`ID`) ON DELETE CASCADE, " +
+			"		  PRIMARY KEY (`NUMERO_ORDEN`)) ;";
 	
-	private static final String TABLA_CREATE_ENVIO = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`envio` ( " +
+	private static final String TABLA_CREATE_ENVIO = //BIEN
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`envio` ( " +
 			"		  `ID` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `NUMERO_ORDEN` INT NOT NULL, " +
 			"		  `RUTA` INT NOT NULL, " +
 			"		  `CAMION` INT NOT NULL, " +
 			"		  `COSTO` DECIMAL(12,2) NULL, " +
-			"		  PRIMARY KEY (`ID`)) "+
-			"		  SECONDARY KEY (`NUMERO_ORDEN`) REFERENCES `died`.`pedido` (`NUMERO_ORDEN`) ON DELETE CASCADE, " +
-			"		  SECONDARY KEY (`CAMION`) REFERENCES `died`.`camion` (`ID`) ON DELETE CASCADE, " +
-			"		  SECONDARY KEY (`RUTA`) REFERENCES `died`.`ruta` (`ID`) ON DELETE CASCADE);";
+			"		  PRIMARY KEY (`ID`), "+
+			"		  FOREIGN KEY (`NUMERO_ORDEN`) REFERENCES `tp_integrador`.`pedido` (`NUMERO_ORDEN`) ON DELETE CASCADE, " +
+			"		  FOREIGN KEY (`CAMION`) REFERENCES `tp_integrador`.`camion` (`ID`) ON DELETE CASCADE, " +
+			"		  FOREIGN KEY (`RUTA`) REFERENCES `tp_integrador`.`ruta` (`ID`) ON DELETE CASCADE);";
 	
-	private static final String TABLA_CREATE_RUTA = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`ruta` ( " +
+	private static final String TABLA_CREATE_RUTA = //bien
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`ruta` ( " +
 			"		  `ID` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `PLANTA_ORIGEN` INT NOT NULL, " +
 			"		  `PLANTA_DESTINO` INT NOT NULL, " + 
 			"		  `DISTANCIA_KM` DECIMAL(12,2) NULL, " +
-			"		  `DURACION` DATE NULL, " + //VER
+			"		  `DURACION` INT NULL, " + //VER
 			"		  `PESO_MAXIMO_POR_DIA` DECIMAL(12,2) NULL, " +
-			"		  PRIMARY KEY (`ID`)) ;";
+			"		  PRIMARY KEY (`ID`) ,"+
+			"		  FOREIGN KEY (`PLANTA_DESTINO`) REFERENCES `tp_integrador`.`planta` (`ID`) ON DELETE CASCADE, " +
+			"		  FOREIGN KEY (`PLANTA_ORIGEN`) REFERENCES `tp_integrador`.`planta` (`ID`) ON DELETE CASCADE); " ;
 	
 	private static final String TABLA_CREATE_STOCK = 
-			"CREATE TABLE  IF NOT EXISTS `died`.`stock` ( " +
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`stock` ( " +
 			"		  `ID_REGISTRO` INT NOT NULL AUTO_INCREMENT, " +
 			"		  `ID_PLANTA` INT NOT NULL, " +
 			"		  `INSUMO` INT NOT NULL, " +
 			"		  `CANTIDAD` INT NULL, " +
 			"		  `PUNTO_REPOSICION` INT NULL, " +
-			"		  PRIMARY KEY (`ID_REGISTRO`, `ID_PLANTA`, `INSUMO`) " +
-			"		  SECONDARY KEY (`ID_PLANTA`) REFERENCES `died`.`planta` (`ID`) ON DELETE CASCADE" +
-			"		  SECONDARY KEY (`INSUMO`) REFERENCES `died`.`insumo` (`ID`) ON DELETE CASCADE);";
-
-	private static final String TABLA_CREATE_TODAS_PRUEBA = 
-			TABLA_CREATE_CAMION +
-			TABLA_CREATE_PLANTA +
-			TABLA_CREATE_CAMION_PLANTA +
-			TABLA_CREATE_INSUMO +
-			TABLA_CREATE_INSUMO_LIQUIDO +
-			TABLA_CREATE_INSUMO_GENERAL +
-			TABLA_CREATE_RUTA +
-			TABLA_CREATE_STOCK +
-			TABLA_CREATE_PEDIDO +
-			TABLA_CREATE_ITEM +
-			TABLA_CREATE_ENVIO;
-			
+			"		  PRIMARY KEY (`ID_REGISTRO`, `ID_PLANTA`, `INSUMO`), " +
+			"		  FOREIGN KEY (`ID_PLANTA`) REFERENCES `tp_integrador`.`planta` (`ID`) ON DELETE CASCADE," +
+			"		  FOREIGN KEY (`INSUMO`) REFERENCES `tp_integrador`.`insumo` (`ID`) ON DELETE CASCADE);";
+	
 	private BD(){
 			// no se pueden crear instancias de esta clase
 	}
@@ -133,16 +112,68 @@ public class BD {
 		if(!_TABLAS_CREADAS) {
 			Connection conn = BD.crearConexion();
 			Statement stmt = null;
+			Statement stmt1 = null;
+			Statement stmt2 = null;
+			Statement stmt3 = null;
+			Statement stmt4 = null;
+			Statement stmt5 = null;
+			Statement stmt6 = null;
+			Statement stmt7 = null;
+			Statement stmt8 = null;
+			Statement stmt9 = null;
+			Statement stmt0 = null;
 			try {
 				stmt = conn.createStatement();
-				boolean tablasCreadas = stmt.execute(TABLA_CREATE_TODAS_PRUEBA); 
-				_TABLAS_CREADAS = tablasCreadas;
+				stmt1 = conn.createStatement();
+				stmt2 = conn.createStatement();
+				stmt3 = conn.createStatement();
+				//stmt4 = conn.createStatement();
+				//stmt5 = conn.createStatement();
+				stmt6 = conn.createStatement();
+				stmt7 = conn.createStatement();
+				stmt8 = conn.createStatement();
+				stmt9 = conn.createStatement();
+				stmt0 = conn.createStatement();
+
+				boolean tablaCamion = stmt.execute(TABLA_CREATE_CAMION); 
+				boolean tablaPlanta = stmt1.execute(TABLA_CREATE_PLANTA);
+				boolean tablaCamionPlanta = stmt2.execute(TABLA_CREATE_CAMION_PLANTA);
+				boolean tablaInsumo = stmt3.execute(TABLA_CREATE_INSUMO);
+				//boolean tablaInsumoG = stmt4.execute(TABLA_CREATE_INSUMO_GENERAL);
+				//boolean tablaInsumoL = stmt5.execute(TABLA_CREATE_INSUMO_LIQUIDO);
+				boolean tablaRuta = stmt6.execute(TABLA_CREATE_RUTA);
+				boolean tablaPedido = stmt7.execute(TABLA_CREATE_PEDIDO);
+				boolean tablaItem = stmt8.execute(TABLA_CREATE_ITEM);
+				boolean tablaEnvio = stmt9.execute(TABLA_CREATE_ENVIO);
+				boolean tablaStock = stmt0.execute(TABLA_CREATE_STOCK);
+				_TABLAS_CREADAS = tablaCamion && 
+								  tablaPlanta && 
+								  tablaCamionPlanta && 
+								  tablaInsumo && 
+					//			  tablaInsumoG && 
+						//		  tablaInsumoL && 
+								  tablaRuta && 
+								  tablaPedido && 
+								  tablaItem && 
+								  tablaEnvio &&
+								  tablaStock;
+				
 			}catch (SQLException e) {
 				e.printStackTrace();
 			}
 			finally {
 					try {
 						if(stmt!=null) stmt.close();
+						if(stmt1!=null) stmt1.close();
+						if(stmt2!=null) stmt2.close();
+						if(stmt3!=null) stmt3.close();
+					//	if(stmt4!=null) stmt4.close();
+						//if(stmt5!=null) stmt5.close();
+						if(stmt6!=null) stmt6.close();
+						if(stmt7!=null) stmt7.close();
+						if(stmt8!=null) stmt8.close();
+						if(stmt9!=null) stmt9.close();
+						if(stmt0!=null) stmt0.close();
 						if(conn!=null) conn.close();
 					} catch (SQLException e) {
 						e.printStackTrace();

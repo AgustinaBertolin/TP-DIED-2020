@@ -16,46 +16,26 @@ import dominio.InsumoLiquido;
 public class InsumoDaoMySql implements InsumoDao {
 
 	private static final String SELECT_ALL_INSUMO_GENERAL = 
-			"SELECT * FROM INSUMO, INSUMO_GENERAL"+
-			"WHERE INSUMO.ID = INSUMO_GENERAL.ID";
+			"SELECT * FROM `tp_integrador`.`insumo`";
 
-	private static final String SELECT_ALL_INSUMO_LIQUIDO = 
-			"SELECT * FROM INSUMO, INSUMO_LIQUIDO"+
-			"WHERE INSUMO.ID = INSUMO_LIQUIDO.ID";
-	
 	private static final String INSERT_INSUMO =
-			"INSERT INTO INSUMO (DESCRIPCION, UNIDAD_DE_MEDIDA, COSTO) VALUES (?,?,?)";
-	
-	private static final String INSERT_INSUMO_GENERAL = 
-			"INSERT INTO INSUMO_GENERAL (ID, PESO) VALUES (?,?)";
-	
-	private static final String INSERT_INSUMO_LIQUIDO = 
-			"INSERT INTO INSUMO_LIQUIDO (ID, DENSIDAD) VALUES (?,?)";
+			"INSERT INTO `tp_integrador`.`insumo` (DESCRIPCION, UNIDAD_DE_MEDIDA, COSTO, PESO, DENSIDAD) VALUES (?,?,?,?,?)";
 	
 	private static final String UPDATE_INSUMO =
-			" UPDATE INSUMO SET DESCRIPCION = ?, UNIDAD_DE_MEDIDA =? ,COSTO = ?"
+			" UPDATE `tp_integrador`.`insumo` SET DESCRIPCION = ?, UNIDAD_DE_MEDIDA =? ,COSTO = ?, SET PESO = ?, SET DENSIDAD = ?,"
 			+ " WHERE ID = ?";
-	
-	private static final String UPDATE_INSUMO_GENERAL = 
-			"UPDATE INSUMO_GENERAL SET PESO = ?"
-			+ " WHERE ID = ?";
-
-	private static final String UPDATE_INSUMO_LIQUIDO = 
-			"UPDATE INSUMO_LIQUIDO SET DENSIDAD = ?"
-			+ " WHERE ID = ?";
-	
+		
 	private static final String SELECT_ID =
-			"SELECT ID, DESCRIPCION, UNIDAD_DE_MEDIDA, COSTO, PESO, DENSIDAD FROM INSUMO, INSUMO_GENERAL, INSUMO_LIQUIDO " +
+			"SELECT * FROM `tp_integrador`.`insumo`" +
 			"WHERE ID = ?";
 	
 	private static final String DELETE_INSUMO = 
-			"DELETE FROM INSUMO " +
+			"DELETE FROM `tp_integrador`.`insumo` " +
 			"WHERE ID = ?";
 	
 	public Insumo saveOrUpdate(Insumo i) {
 		Connection conn = BD.getConexion();
 		PreparedStatement pstmt = null;
-		PreparedStatement pstmt2 = null;
 		try {
 			if(i.getId()!=null && i.getId()>0) {
 				System.out.println("EJECUTA UPDATE");
@@ -63,17 +43,15 @@ public class InsumoDaoMySql implements InsumoDao {
 				pstmt.setString(1, i.getDescripcion());
 				pstmt.setString(2, i.getUnidadDeMedida().toString());
 				pstmt.setDouble(3, i.getCosto());
-				pstmt.setInt(4, i.getId());
+				pstmt.setInt(6, i.getId());
 				
 				if(i instanceof InsumoGeneral) {
-					pstmt2 = conn.prepareStatement(UPDATE_INSUMO_GENERAL);
-					pstmt2.setDouble(1, ((InsumoGeneral) i).getPeso());
-					pstmt2.setInt(2, i.getId());
+					pstmt.setDouble(4, ((InsumoGeneral) i).getPeso());
+					pstmt.setDouble(5, 0);
 				}
 				else {
-					pstmt2 = conn.prepareStatement(UPDATE_INSUMO_LIQUIDO);
-					pstmt2.setDouble(1, ((InsumoLiquido) i).getDensidad());
-					pstmt2.setInt(2, i.getId());
+					pstmt.setDouble(5, ((InsumoLiquido) i).getDensidad());
+					pstmt.setDouble(4, 0);
 				}
 			}else {
 				System.out.println("EJECUTA INSERT");
@@ -82,23 +60,19 @@ public class InsumoDaoMySql implements InsumoDao {
 				pstmt.setString(2, i.getUnidadDeMedida().toString());
 				pstmt.setDouble(3, i.getCosto());
 				if(i instanceof InsumoGeneral) {
-					pstmt2 = conn.prepareStatement(INSERT_INSUMO_GENERAL);
-					pstmt2.setInt(1, i.getId());
-					pstmt2.setDouble(2, ((InsumoGeneral) i).getPeso());
+					pstmt.setDouble(4, ((InsumoGeneral) i).getPeso());
+					pstmt.setDouble(5, 0);
 				}
 				else {
-					pstmt2 = conn.prepareStatement(INSERT_INSUMO_LIQUIDO);
-					pstmt2.setInt(1, i.getId());
-					pstmt2.setDouble(2, ((InsumoLiquido) i).getDensidad());
+					pstmt.setDouble(5, ((InsumoLiquido) i).getDensidad());
+					pstmt.setDouble(4, 0);
 				}
 			}
 			pstmt.executeUpdate();
-			pstmt2.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
 			try {
-				if(pstmt2!=null) pstmt2.close();
 				if(pstmt!=null) pstmt.close();
 				if(conn!=null) conn.close();				
 			}catch(SQLException e) {
@@ -118,7 +92,7 @@ public class InsumoDaoMySql implements InsumoDao {
 			pstmt.setInt(1, id);
 			rs = pstmt.executeQuery();
 			while(rs.next()) {
-				if(rs.getObject("PESO") != null) {
+				if(rs.getDouble("PESO") != 0d) {
 					i = new InsumoGeneral();
 					((InsumoGeneral) i).setPeso(rs.getDouble("PESO"));
 
@@ -171,14 +145,19 @@ public class InsumoDaoMySql implements InsumoDao {
 		Connection conn = BD.getConexion();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		PreparedStatement pstmt2 = null;
-		ResultSet rs2 = null;
 		try {
 			pstmt= conn.prepareStatement(SELECT_ALL_INSUMO_GENERAL);
 			rs = pstmt.executeQuery();
 			while(rs.next()) {
-				InsumoGeneral i = new InsumoGeneral();
-				i.setPeso(rs.getDouble("PESO"));
+				Insumo i;
+				if(rs.getDouble("PESO") != 0d) {
+					i = new InsumoGeneral();
+					((InsumoGeneral)i).setPeso(rs.getDouble("PESO"));
+				}
+				else {
+					i = new InsumoLiquido();
+					((InsumoLiquido)i).setDensidad(rs.getDouble("DENSIDAD"));
+				}
 				i.setId(rs.getInt("ID"));
 				i.setDescripcion(rs.getString("DESCRIPCION"));
 				i.setUnidadDeMedida(UnidadDeMedida.valueOf(rs.getString("UNIDAD_DE_MEDIDA")));
@@ -186,17 +165,6 @@ public class InsumoDaoMySql implements InsumoDao {
 				lista.add(i);
 			}			
 			
-			pstmt2 = conn.prepareStatement(SELECT_ALL_INSUMO_LIQUIDO);
-			rs2 = pstmt2.executeQuery();
-			while(rs2.next()) {
-				InsumoLiquido i = new InsumoLiquido();
-				i.setDensidad(rs2.getDouble("DENSIDAD"));
-				i.setId(rs2.getInt("ID"));
-				i.setDescripcion(rs2.getString("DESCRIPCION"));
-				i.setUnidadDeMedida(UnidadDeMedida.valueOf(rs2.getString("UNIDAD_DE_MEDIDA")));
-				i.setCosto(rs2.getDouble("COSTO"));
-				lista.add(i);
-			}
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

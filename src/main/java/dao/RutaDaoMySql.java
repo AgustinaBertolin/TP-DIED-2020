@@ -13,22 +13,22 @@ import dominio.Ruta;
 public class RutaDaoMySql implements RutaDao {
 
 	private static final String UPDATE_RUTA =
-			" UPDATE RUTA SET PLANTA_DESTINO = ?, PLANTA_ORIGEN = ?, DISTANCIA_KM = ?, DURACION = ?, PESO_MAXIMO_POR_DIA = ?" + 
+			" UPDATE `tp_integrador`.`ruta` SET PLANTA_DESTINO = ?, PLANTA_ORIGEN = ?, DISTANCIA_KM = ?, DURACION = ?, PESO_MAXIMO_POR_DIA = ?" + 
 			" WHERE ID = ?";
 	
 	private static final String INSERT_RUTA =
-			" INSERT INTO RUTA (ID, PLANTA_DESTINO, PLANTA_ORIGEN, DISTANCIA_KM, DURACION, PESO_MAXIMO_POR_DIA) VALUES (?,?,?,?,?,?)";
+			" INSERT INTO `tp_integrador`.`ruta` (ID, PLANTA_DESTINO, PLANTA_ORIGEN, DISTANCIA_KM, DURACION, PESO_MAXIMO_POR_DIA) VALUES (?,?,?,?,?,?)";
 	
 	private static final String DELETE_RUTA =
-			" DELETE FROM RUTA"+
+			" DELETE FROM `tp_integrador`.`ruta`"+
 			" WHERE ID = ?";
 	
 	private static final String SELECT_ID = 
-			" SELECT * FROM RUTA"+
+			" SELECT * FROM `tp_integrador`.`ruta`"+
 			" WHERE ID = ?";
 	
 	private static final String SELECT_ALL_RUTA =
-			" SELECT * FROM RUTA";
+			" SELECT * FROM `tp_integrador`.`ruta`";
 	
 	public Ruta saveOrUpdate(Ruta r) {
 		
@@ -44,7 +44,7 @@ public class RutaDaoMySql implements RutaDao {
 				pstmt.setInt(1, r.getDestino().getId());
 				pstmt.setInt(2, r.getOrigen().getId()); 
 				pstmt.setDouble(3, r.getDistanciaKM());
-				pstmt.setTime(4, r.getDuracion());
+				pstmt.setInt(4, r.getDuracion());
 				pstmt.setDouble(5,  r.getPesoMaxPorDia());
 				pstmt.setInt(6,  r.getId());
 			
@@ -57,7 +57,7 @@ public class RutaDaoMySql implements RutaDao {
 				pstmt.setInt(2, r.getDestino().getId());
 				pstmt.setInt(3, r.getOrigen().getId()); 
 				pstmt.setDouble(4, r.getDistanciaKM());
-				pstmt.setTime(5, r.getDuracion());
+				pstmt.setInt(5, r.getDuracion());
 				pstmt.setDouble(6,  r.getPesoMaxPorDia());
 				
 			}
@@ -100,7 +100,7 @@ public class RutaDaoMySql implements RutaDao {
 				//
 				
 				r.setDistanciaKM(rs.getDouble("DISTANCIA_KM"));
-				r.setDuracion(rs.getTime("DURACION"));
+				r.setDuracion(rs.getInt("DURACION"));
 				r.setPesoMaxPorDia(rs.getDouble("PESO_MAXIMO_POR_DIA"));
 				
 				
@@ -163,7 +163,7 @@ public class RutaDaoMySql implements RutaDao {
 				//
 				
 				r.setDistanciaKM(rs.getDouble("DISTANCIA_KM"));
-				r.setDuracion(rs.getTime("DURACION"));
+				r.setDuracion(rs.getInt("DURACION"));
 				r.setPesoMaxPorDia(rs.getDouble("PESO_MAXIMO_POR_DIA"));
 				
 				lista.add(r);

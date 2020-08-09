@@ -8,7 +8,7 @@ public class Ruta {
 	private Planta origen;
 	private Planta destino;
 	private Double distanciaKM;
-	private Time duracion; 
+	private Integer duracion; 
 	private Double pesoMaxPorDia;
 	
 	
@@ -36,10 +36,10 @@ public class Ruta {
 	public void setDistanciaKM(Double distanciaKM) {
 		this.distanciaKM = distanciaKM;
 	}
-	public Time getDuracion() {
+	public Integer getDuracion() {
 		return duracion;
 	}
-	public void setDuracion(Time duracion) {
+	public void setDuracion(Integer duracion) {
 		this.duracion = duracion;
 	}
 	public Double getPesoMaxPorDia() {

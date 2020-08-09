@@ -22,8 +22,8 @@ public class PlantaService {
 		return plantaDao.buscarTodos();
 	}
 	
-	public void borrarPlanta(Planta p) {
-		this.plantaDao.borrar(p.getId());
+	public void borrarPlanta(Integer id) {
+		this.plantaDao.borrar(id);
 	}
 	
 	public Planta buscarPlanta(Integer id) {  //que atributos????

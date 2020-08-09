@@ -11,26 +11,27 @@ import BaseDeDatos.BD;
 import dominio.Camion;
 import dominio.Pedido;
 import dominio.Planta;
+import dominio.Planta.TipoPlanta;
 import dominio.Stock;
 
 public class PlantaDaoMySql implements PlantaDao {
 
 	private static final String SELECT_ALL_PLANTA =
-			"SELECT ID,NOMBRE FROM PLANTA";
+			"SELECT * FROM `tp_integrador`.`planta`";
 	
 	private static final String INSERT_PLANTA =
-			"INSERT INTO PLANTA (ID,NOMBRE) VALUES (?,?)";
+			"INSERT INTO `tp_integrador`.`planta` (NOMBRE,TIPO) VALUES (?,?)";
 	
 	private static final String UPDATE_PLANTA =
-			" UPDATE PLANTA SET NOMBRE = ?"
+			" UPDATE `tp_integrador`.`planta` SET NOMBRE = ?, TIPO = ?"
 			+ " WHERE ID = ?";
 	
 	private static final String SELECT_ID =
-			"SELECT ID, NOMBRE FROM PLANTA " +
+			"SELECT * FROM `tp_integrador`.`planta` " +
 			"WHERE ID = ?";
 	
 	private static final String DELETE_PLANTA = 
-			"DELETE FROM PLANTA " +
+			"DELETE FROM `tp_integrador`.`planta` " +
 			"WHERE ID = ?";
 	
 	public Planta saveOrUpdate(Planta p) {
@@ -45,7 +46,9 @@ public class PlantaDaoMySql implements PlantaDao {
 			if(p.getId()!=null && p.getId()>0) {
 				System.out.println("EJECUTA UPDATE");
 				pstmt= conn.prepareStatement(UPDATE_PLANTA);
-				pstmt.setString(2, p.getNombre());
+				pstmt.setString(1, p.getNombre());
+				pstmt.setString(2, p.getTipoPlanta().toString());
+				pstmt.setInt(3, p.getId());
 				
 				for(Stock s: p.getStock()) {
 					stockDao.saveOrUpdate(s, p.getId());
@@ -62,11 +65,18 @@ public class PlantaDaoMySql implements PlantaDao {
 			}else {
 				System.out.println("EJECUTA INSERT");
 				pstmt= conn.prepareStatement(INSERT_PLANTA);
-				pstmt.setInt(1, p.getId());
-				pstmt.setString(2, p.getNombre());
+				pstmt.setString(1, p.getNombre());
+				pstmt.setString(2, p.getTipoPlanta().toString());
 				
 				for(Stock s: p.getStock()) {
 					stockDao.saveOrUpdate(s, p.getId());
+				}
+				for(Pedido pe: p.getPedidosRealizados()) {
+					pedidoDao.saveOrUpdate(pe);
+				}
+				
+				for(Camion c: p.getCamionesDisponibles()) {
+					camionDao.saveOrUpdate(c);
 				}
 				
 			}
@@ -100,6 +110,7 @@ public class PlantaDaoMySql implements PlantaDao {
 			while(rs.next()) {
 				p.setId(rs.getInt("ID"));
 				p.setNombre(rs.getString("NOMBRE"));
+				p.setTipoPlanta(TipoPlanta.valueOf(rs.getString("TIPO")));
 				p.setStock(stockDao.buscarPorIdPlanta(p.getId()));
 				p.setCamionesDisponibles(camionDao.buscarTodosPorPlanta(p.getId()));
 				p.setPedidosRealizados(pedidoDao.buscarTodosPorPlanta(p.getId()));
@@ -157,6 +168,7 @@ public class PlantaDaoMySql implements PlantaDao {
 				Planta p = new Planta();
 				p.setId(rs.getInt("ID"));
 				p.setNombre(rs.getString("NOMBRE"));
+				p.setTipoPlanta(TipoPlanta.valueOf(rs.getString("TIPO")));
 				p.setStock(stockDao.buscarPorIdPlanta(p.getId()));
 				p.setCamionesDisponibles(camionDao.buscarTodosPorPlanta(p.getId()));
 				p.setPedidosRealizados(pedidoDao.buscarTodosPorPlanta(p.getId()));

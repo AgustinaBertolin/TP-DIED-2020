@@ -5,11 +5,16 @@ import java.util.List;
 
 public class Planta {
 
+	public enum TipoPlanta {
+		Acopio_Puerto, Produccion, Acopio_Final; 
+	}
+	
 	private Integer id;
 	private String nombre;
 	private List<Camion> camionesDisponibles;
 	private List<Pedido> pedidosRealizados;
 	private List<Stock> stock;
+	private TipoPlanta tipoPlanta;
 	
 	public Planta(){
 		this.camionesDisponibles = new ArrayList<Camion>();
@@ -56,4 +61,17 @@ public class Planta {
 	public void setStock(List<Stock> stock) {
 		this.stock = stock;
 	}
+
+	public TipoPlanta getTipoPlanta() {
+		return tipoPlanta;
+	}
+
+	public void setTipoPlanta(TipoPlanta tipoPlanta) {
+		this.tipoPlanta = tipoPlanta;
+	}
+	
+	public void agregarStock(Stock s) {
+		this.stock.add(s);
+	}
+	
 }
