@@ -74,4 +74,8 @@ public class Planta {
 		this.stock.add(s);
 	}
 	
+	public void addPedido(Pedido p) {
+		this.pedidosRealizados.add(p);
+	}
+	
 }

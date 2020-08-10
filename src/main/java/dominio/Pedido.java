@@ -1,6 +1,6 @@
 package dominio;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +12,8 @@ public class Pedido {
 	
 	private Integer nroOrden;
 	private Planta destino;
-	private Date fechaSolicitud;
-	private Date fechaEntrega;
+	private LocalDate fechaSolicitud;
+	private LocalDate fechaEntrega;
 	private Estado estado;
 	private List<Item> items;
 	private Envio envio;
@@ -34,16 +34,16 @@ public class Pedido {
 	public void setDestino(Planta destino) {
 		this.destino = destino;
 	}
-	public Date getFechaSolicitud() {
+	public LocalDate getFechaSolicitud() {
 		return fechaSolicitud;
 	}
-	public void setFechaSolicitud(Date fechaSolicitud) {
+	public void setFechaSolicitud(LocalDate fechaSolicitud) {
 		this.fechaSolicitud = fechaSolicitud;
 	}
-	public Date getFechaEntrega() {
+	public LocalDate getFechaEntrega() {
 		return fechaEntrega;
 	}
-	public void setFechaEntrega(Date fechaEntrega) {
+	public void setFechaEntrega(LocalDate fechaEntrega) {
 		this.fechaEntrega = fechaEntrega;
 	}
 	public Estado getEstado() {
@@ -67,6 +67,10 @@ public class Pedido {
 
 	public void setEnvio(Envio envio) {
 		this.envio = envio;
+	}
+	
+	public void addItem(Item i) {
+		this.items.add(i);
 	}
 
 }

@@ -25,4 +25,8 @@ public class Item {
 		this.cantidad = cantidad;
 	}
 	
+	public Double precio() {
+		return this.insumo.getCosto() * this.cantidad;
+	}
+	
 }

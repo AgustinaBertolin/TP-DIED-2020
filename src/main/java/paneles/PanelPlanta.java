@@ -9,6 +9,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -16,16 +22,24 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.DateFormatter;
 
 import dominio.Insumo;
+import dominio.Item;
+import dominio.Pedido;
+import dominio.Pedido.Estado;
 import dominio.Planta;
 import dominio.Planta.TipoPlanta;
 import dominio.Ruta;
@@ -39,13 +53,16 @@ public class PanelPlanta extends JPanel {
 
 	private DefaultTableModel modeloPlanta;
 	private DefaultTableModel modeloStock;
+	private DefaultTableModel modeloItem;
 	private JTable tablaPlanta;
 	private JTable tablaStock;
+	private JTable tablaItem;
 	private JButton borrar;
 	private JButton crear;
 	private JButton modificar;
 	private JButton actualizarStock;
 	private JButton agregarRuta;
+	private JButton realizarPedido;
 	private PlantaService service = new PlantaService();
 
 	
@@ -59,13 +76,13 @@ public class PanelPlanta extends JPanel {
 
 		//Crear tabla Plantas
 		tablaPlanta = new JTable(modeloPlanta);
-		add(tablaPlanta);
+//		add(tablaPlanta);
 		actualizarTabla();
 		tablaPlanta.setDefaultEditor(Object.class, null);
 
 		//Crear tabla Stock
 		tablaStock = new JTable(modeloStock);
-		add(tablaStock);
+//		add(tablaStock);
 		actualizarTablaStock(null, null);
 		tablaStock.setDefaultEditor(Object.class, null);
 		
@@ -154,6 +171,23 @@ public class PanelPlanta extends JPanel {
 				}
 			
 		});
+
+		//Boton realizar Pedido
+		realizarPedido = new JButton("Realizar Pedido");
+		realizarPedido.addActionListener( new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				
+				if(tablaPlanta.getSelectedRow() < 0) {
+					JOptionPane.showMessageDialog(new JFrame(), "No se ha seleccionado una planta", "Informacion", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else {
+					Planta p = service.buscarPlanta(Integer.valueOf(modeloPlanta.getValueAt(tablaPlanta.getSelectedRow(), 0).toString()));
+					realizarPedido(p);					
+				}
+			}
+			
+		});
 		
 		//Titulo, paso a main?
 	    GridBagConstraints constraintsTitulo = new GridBagConstraints();
@@ -193,7 +227,10 @@ public class PanelPlanta extends JPanel {
 	    
 	    constraints.gridx = 4;
 	    botonesPlanta.add(agregarRuta, constraints);
-	    
+
+	    constraints.gridx = 5;
+	    botonesPlanta.add(realizarPedido, constraints);
+
 	    panelPlanta.add(botonesPlanta);
 	    
 	    //tabla plantas
@@ -731,6 +768,234 @@ public class PanelPlanta extends JPanel {
         dialogo.setVisible(true); 
 	}
 	
+
+
+
+	public void realizarPedido(final Planta p) {
+		final JDialog dialogo = new JDialog(new JFrame(), "Realizar pedido", Dialog.ModalityType.DOCUMENT_MODAL); 
+		dialogo.setResizable(false);
+		dialogo.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JPanel panelCrear = new JPanel();
+        panelCrear.setLayout(new BoxLayout(panelCrear, BoxLayout.PAGE_AXIS)); //VERRRRRRRRRRRRRRR
+
+        final Pedido pe = new Pedido();
+        JButton botonCrear = new JButton("Realizar Pedido");
+        
+        //Etiquetas
+        JLabel plantaEtiqueta = new JLabel("Planta: ");
+        JLabel fechaEtiqueta = new JLabel("Fecha Maxima de Entrega: ");
+        
+    	//Campos
+        JLabel nombrePlanta = new JLabel(p.getNombre());
+
+        //fecha
+        Calendar calendar = Calendar.getInstance();
+    	Date initDate = (Date) calendar.getTime();
+    	calendar.add(Calendar.YEAR, -100);
+    	Date earliestDate = (Date) calendar.getTime();
+    	calendar.add(Calendar.YEAR, 200);
+    	Date latestDate = (Date) calendar.getTime();
+    	SpinnerModel dateModel = new SpinnerDateModel(initDate,
+    	                                 earliestDate,
+    	                                 latestDate,
+    	                                 Calendar.YEAR);
+    	
+        final JSpinner fechaMax = new JSpinner(dateModel);
+        fechaMax.setEditor(new JSpinner.DateEditor(fechaMax, "dd/MM/yyyy"));
+        
+        //Boton agragar item
+        JButton botonAñadir = new JButton("Añadir item");
+        botonAñadir.addActionListener( new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				
+				agregarItem(pe);
+				
+			}
+        	
+        });
+        
+        //Panel del mensaje
+        JPanel newPanel = new JPanel();
+        newPanel.setLayout(new GridBagLayout());
+        
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(10, 10, 10, 10);
+          
+        constraints.gridx = 0;
+        constraints.gridy = 1;     
+        newPanel.add(plantaEtiqueta, constraints);
+  
+        constraints.gridx = 1;
+        newPanel.add(nombrePlanta, constraints);
+          
+        constraints.gridx = 0;
+        constraints.gridy = 2;     
+        newPanel.add(fechaEtiqueta, constraints);
+          
+        constraints.gridx = 1;
+        newPanel.add(fechaMax, constraints);
+         
+        constraints.gridx = 2;
+        newPanel.add(botonAñadir, constraints);
+                 
+        panelCrear.add(newPanel);
+        
+        //Tabla Items
+		tablaItem = new JTable(modeloItem);
+		actualizarTablaItem(pe);
+		tablaItem.setDefaultEditor(Object.class, null);
+		
+        JScrollPane tableSP = new JScrollPane(tablaItem);
+		tableSP.setPreferredSize(new Dimension(600, 500)); //ver
+		
+	    JPanel panelTabla = new JPanel(new GridBagLayout());
+	    
+	    GridBagConstraints constraintsTabla = new GridBagConstraints();
+	    constraintsTabla.anchor = GridBagConstraints.BOTH;
+	    constraintsTabla.insets = new Insets(0, 0, 0, 5);
+	    constraintsTabla.gridy = 2;
+	    constraintsTabla.gridx = 1;
+	    constraintsTabla.gridwidth = 8;
+	    constraintsTabla.anchor = GridBagConstraints.CENTER;
+	    panelTabla.add(tableSP, constraintsTabla);
+	    
+	    panelCrear.add(panelTabla);
+	    
+        //Crear Pedido
+        ActionListener al =  new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+
+				pe.setFechaEntrega(((Date)fechaMax.getValue()).toInstant()
+					      .atZone(ZoneId.systemDefault())
+					      .toLocalDate());
+				pe.setFechaSolicitud(LocalDate.now());
+				pe.setEstado(Estado.CREADA);
+				pe.setDestino(p);
+				p.addPedido(pe);
+				
+				service.crearPlanta(p);
+				
+				dialogo.dispose();
+			}
+        	
+        };
+        botonCrear.addActionListener(al); 
+  
+        JPanel panelBoton = new JPanel();
+        panelBoton.setSize(new Dimension(400, 120));
+        panelBoton.setLayout(new BorderLayout(0,0));
+        panelBoton.add(botonCrear, BorderLayout.CENTER); 
+  
+        panelCrear.add(panelBoton);
+        dialogo.add(panelCrear);  
+        dialogo.setSize(800, 700); 
+        dialogo.setVisible(true); 
+	}
+	
+	public void agregarItem(final Pedido pe) {
+		final JDialog dialogo = new JDialog(new JFrame(), "Agregar Item", Dialog.ModalityType.DOCUMENT_MODAL); 
+		dialogo.setResizable(false);
+		dialogo.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JPanel panelCrear = new JPanel();
+        panelCrear.setLayout(new BoxLayout(panelCrear, BoxLayout.PAGE_AXIS)); //VERRRRRRRRRRRRRRR
+
+        JButton botonCrear = new JButton("Agregar Item");
+        
+        //Etiquetas
+        JLabel insumoEtiqueta = new JLabel("Insumo: ");
+        JLabel cantidadEtiqueta = new JLabel("Cantidad: ");
+        
+        //Campos
+        final JComboBox<String> insumoBox = new JComboBox<String>();
+        final JTextField textoCantidad = new JTextField(20);
+        
+        InsumoService is = new InsumoService();
+        final List<Insumo> insumos = is.buscarTodos();
+        for(Insumo i: insumos) {
+        	insumoBox.addItem(i.getDescripcion());
+        }
+        
+        //Panel del mensaje
+        JPanel newPanel = new JPanel();
+        newPanel.setLayout(new GridBagLayout());
+        
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(10, 10, 10, 10);
+          
+        constraints.gridx = 0;
+        constraints.gridy = 1;     
+        newPanel.add(insumoEtiqueta, constraints);
+  
+        constraints.gridx = 1;
+        newPanel.add(insumoBox, constraints);
+          
+        constraints.gridx = 0;
+        constraints.gridy = 2;     
+        newPanel.add(cantidadEtiqueta, constraints);
+          
+        constraints.gridx = 1;
+        newPanel.add(textoCantidad, constraints);
+         
+        panelCrear.add(newPanel);
+        
+        //Crear Planta
+        ActionListener al =  new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+
+				if( textoCantidad.getText().length() == 0) {
+					JOptionPane.showMessageDialog(getParent(), "Error: El campo Cantidad se encuentra vacío", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				else {
+					Integer cantidad;
+					try {
+						cantidad = Integer.parseInt(textoCantidad.getText());
+					} catch (NumberFormatException e) {
+						JOptionPane.showMessageDialog(new JFrame(), "Cantidad es un campo numerico",
+								"Información", JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
+					
+					Insumo i = null;
+					Item item = new Item();
+					boolean encontrado = false;
+					int j = 0;
+					while(!encontrado) {
+						if(insumos.get(j).getDescripcion() == insumoBox.getSelectedItem()) {
+							encontrado = true;
+							i = insumos.get(j);
+						}
+						j++;
+					}
+					
+					item.setInsumo(i);
+					item.setCantidad(cantidad);
+					pe.addItem(item);
+					
+					actualizarTablaItem(pe);
+					dialogo.dispose();
+				}
+			}
+        	
+        };
+        botonCrear.addActionListener(al); 
+  
+        JPanel panelBoton = new JPanel();
+        panelBoton.setSize(new Dimension(400, 120));
+        panelBoton.setLayout(new BorderLayout(0,0));
+        panelBoton.add(botonCrear, BorderLayout.CENTER); 
+  
+        panelCrear.add(panelBoton);
+        dialogo.add(panelCrear);  
+        dialogo.setSize(300, 200); 
+        dialogo.setVisible(true); 
+	}
+	
+	
 	public void actualizarTabla() {
 
 		//crear modelo tabla
@@ -794,6 +1059,22 @@ public class PanelPlanta extends JPanel {
 
 	}
 	
+	public void actualizarTablaItem(Pedido pe) {
+		//crear modelo tabla
+		String[] columnas = {"Insumo", "Cantidad", "Precio"};
+		modeloItem = new DefaultTableModel(columnas, 0);
+	
+		for(Item i: pe.getItems()) {
+			String insumo = i.getInsumo().getDescripcion();
+			Integer cantidad = i.getCantidad();
+			Double precio = i.precio();
 
+			Object[] renglon = {insumo, cantidad, precio};
+			modeloItem.addRow(renglon);
+		}
+
+		//actualizar modelo
+		tablaItem.setModel(modeloItem);
+	}
 }
 

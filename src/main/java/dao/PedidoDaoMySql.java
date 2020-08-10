@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,13 +65,14 @@ public class PedidoDaoMySql implements PedidoDao {
 		PreparedStatement pstmt = null;
 		PreparedStatement pstmt2 = null;
 		PreparedStatement pstmt3 = null;
+		ResultSet rs = null;
 		try {
 			if(p.getNroOrden()!=null && p.getNroOrden()>0) {
 				System.out.println("EJECUTA UPDATE");
 				pstmt= conn.prepareStatement(UPDATE_PEDIDO);
 				pstmt.setInt(1, p.getDestino().getId());
-				pstmt.setDate(2, p.getFechaSolicitud()); 
-				pstmt.setDate(3, p.getFechaEntrega());
+				pstmt.setObject(2, p.getFechaSolicitud()); 
+				pstmt.setObject(3, p.getFechaEntrega());
 				pstmt.setString(4, p.getEstado().toString());
 				pstmt.setInt(5,  p.getNroOrden());
 				
@@ -106,30 +108,39 @@ public class PedidoDaoMySql implements PedidoDao {
 					}
 						
 				}
+				pstmt.executeUpdate();
 			}else {
 				System.out.println("EJECUTA INSERT");
 				pstmt= conn.prepareStatement(INSERT_PEDIDO);
 				pstmt.setInt(1, p.getDestino().getId());
-				pstmt.setDate(2, p.getFechaSolicitud()); 
-				pstmt.setDate(3, p.getFechaEntrega());
+				pstmt.setObject(2, p.getFechaSolicitud()); 
+				pstmt.setObject(3, p.getFechaEntrega());
 				pstmt.setString(4, p.getEstado().toString());
+				pstmt.executeUpdate();
+				
+				pstmt3 = conn.prepareStatement(SELECT_ALL_PEDIDO);
+				rs = pstmt3.executeQuery();
+				List<Integer> aux = new ArrayList<Integer>();
+				while(rs.next()) {
+					aux.add(rs.getInt("NUMERO_ORDEN"));
+				}
 				
 				for(Item i: p.getItems()) {
 						pstmt2 = conn.prepareStatement(INSERT_ITEM);
-						pstmt2.setInt(1, p.getNroOrden());
+						pstmt2.setInt(1, aux.get(aux.size()-1)); 
 						pstmt2.setInt(2,  i.getInsumo().getId());
 						pstmt2.setInt(3,  i.getCantidad());
 				}
 			}
-			pstmt.executeUpdate();
 			pstmt2.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
 			try {
-				if(pstmt3!=null) pstmt2.close();
+				if(pstmt3!=null) pstmt3.close();
 				if(pstmt2!=null) pstmt2.close();
 				if(pstmt!=null) pstmt.close();
+				if(rs!=null) rs.close();
 				if(conn!=null) conn.close();				
 			}catch(SQLException e) {
 				e.printStackTrace();
@@ -174,8 +185,8 @@ public class PedidoDaoMySql implements PedidoDao {
 				p.setDestino(plantaDao.buscarPorId(rs.getInt("PLANTA_DESTINO")));
 				//
 				
-				p.setFechaSolicitud(rs.getDate("FECHA_SOLICITUD"));
-				p.setFechaEntrega(rs.getDate("FECHA_ENTREGA"));
+				p.setFechaSolicitud(rs.getDate("FECHA_SOLICITUD").toLocalDate());
+				p.setFechaEntrega(rs.getDate("FECHA_ENTREGA").toLocalDate());
 				p.setEstado(Estado.valueOf(rs.getString("ESTADO")));
 				p.setItems(this.buscarPorId(p.getNroOrden()));
 				PreparedStatement pstmt2 = null;
@@ -279,8 +290,8 @@ public class PedidoDaoMySql implements PedidoDao {
 				p.setDestino(plantaDao.buscarPorId(rs.getInt("PLANTA_DESTINO")));
 				//
 				
-				p.setFechaSolicitud(rs.getDate("FECHA_SOLICITUD"));
-				p.setFechaEntrega(rs.getDate("FECHA_ENTREGA"));
+				p.setFechaSolicitud(rs.getDate("FECHA_SOLICITUD").toLocalDate());
+				p.setFechaEntrega(rs.getDate("FECHA_ENTREGA").toLocalDate());
 				p.setEstado(Estado.valueOf(rs.getString("ESTADO")));
 				p.setItems(this.buscarPorId(p.getNroOrden()));
 				PreparedStatement pstmt2 = null;
@@ -348,8 +359,8 @@ public class PedidoDaoMySql implements PedidoDao {
 				p.setDestino(plantaDao.buscarPorId(rs.getInt("PLANTA_DESTINO")));
 				//
 				
-				p.setFechaSolicitud(rs.getDate("FECHA_SOLICITUD"));
-				p.setFechaEntrega(rs.getDate("FECHA_ENTREGA"));
+				p.setFechaSolicitud(rs.getDate("FECHA_SOLICITUD").toLocalDate());
+				p.setFechaEntrega(rs.getDate("FECHA_ENTREGA").toLocalDate());
 				p.setEstado(Estado.valueOf(rs.getString("ESTADO")));
 				p.setItems(this.buscarPorId(p.getNroOrden()));
 				PreparedStatement pstmt2 = null;
