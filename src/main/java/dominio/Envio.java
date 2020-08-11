@@ -1,11 +1,13 @@
 package dominio;
 
+import java.util.List;
+
 public class Envio {
 	
 	private Integer id;
 	private Camion camionAsignado;
-	private Ruta rutaElegida;
-	private Double costo;
+	private List<Ruta> rutaElegida;
+	
 	public Integer getId() {
 		return id;
 	}
@@ -18,17 +20,14 @@ public class Envio {
 	public void setCamionAsignado(Camion camionAsignado) {
 		this.camionAsignado = camionAsignado;
 	}
-	public Ruta getRutaElegida() {
+	public List<Ruta> getRutaElegida() {
 		return rutaElegida;
 	}
-	public void setRutaElegida(Ruta rutaElegida) {
+	public void setRutaElegida(List<Ruta> rutaElegida) {
 		this.rutaElegida = rutaElegida;
 	}
 	public Double getCosto() {
-		return costo;
-	}
-	public void setCosto(Double costo) {
-		this.costo = costo;
+		return this.camionAsignado.getCostoPorHora() == null? (new MapaRutas()).tiempoCamino(this.rutaElegida) * this.camionAsignado.getCostoPorHora() : (new MapaRutas()).kmCamino(this.rutaElegida) * this.camionAsignado.getCostoPorKM();
 	}
 
 }

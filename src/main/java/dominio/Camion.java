@@ -12,6 +12,7 @@ public class Camion {
 	private Double costoPorKM;
 	private Double costoPorHora;
 	private LocalDateTime fechaDeCompra;
+	private boolean guardado = false;
 	
 	public Integer getId() {
 		return id;
@@ -76,6 +77,13 @@ public class Camion {
 	public void setFechaDeCompra(LocalDateTime fechaDeCompra) {
 		this.fechaDeCompra = fechaDeCompra;
 	}
-	
+
+	public boolean isGuardado() {
+		return guardado;
+	}
+
+	public void setGuardado(boolean guardado) {
+		this.guardado = guardado;
+	}
 	
 }

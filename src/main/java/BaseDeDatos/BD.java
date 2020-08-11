@@ -103,6 +103,25 @@ public class BD {
 			"		  PRIMARY KEY (`ID_REGISTRO`, `ID_PLANTA`, `INSUMO`), " +
 			"		  FOREIGN KEY (`ID_PLANTA`) REFERENCES `tp_integrador`.`planta` (`ID`) ON DELETE CASCADE," +
 			"		  FOREIGN KEY (`INSUMO`) REFERENCES `tp_integrador`.`insumo` (`ID`) ON DELETE CASCADE);";
+
+	private static final String CREATE_TABLA_ID =
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`tabla_id` ( " +
+					"		  `ID` INT NOT NULL AUTO_INCREMENT, " +
+					"		  `ID_PEDIDO` INT NOT NULL, " +
+					"		  `ID_CAMION` INT NOT NULL, " +
+					"		  `ID_PLANTA` INT NOT NULL, " +
+					"		  `ID_INSUMO` INT NOT NULL, " +
+					"		  `ID_RUTA` INT NOT NULL, " +
+					"		  PRIMARY KEY (`ID`)); ";
+	
+	private static final String TABLA_CREATE_RUTA_PEDIDO = //bien
+			"CREATE TABLE  IF NOT EXISTS `tp_integrador`.`ruta_pedido` ( " +
+			"		  `ID_RUTA` INT NOT NULL, " +
+			"		  `ID_PEDIDO` INT NOT NULL , " +
+			"		  PRIMARY KEY  (`ID_RUTA`, `ID_PEDIDO`), "+
+			"		  FOREIGN KEY (`ID_RUTA`) REFERENCES `tp_integrador`.`ruta`(`ID`) ON DELETE CASCADE," +
+			"		  FOREIGN KEY (`ID_PEDIDO`) REFERENCES `tp_integrador`.`pedido` (`NUMERO_ORDEN`) ON DELETE CASCADE);";
+
 	
 	private BD(){
 			// no se pueden crear instancias de esta clase
@@ -120,6 +139,8 @@ public class BD {
 			Statement stmt6 = null;
 			Statement stmt7 = null;
 			Statement stmt8 = null;
+			Statement stmt9 = null;
+			Statement stmt0 = null;
 			try {
 				stmt = conn.createStatement();
 				stmt1 = conn.createStatement();
@@ -130,6 +151,8 @@ public class BD {
 				stmt6 = conn.createStatement();
 				stmt7 = conn.createStatement();
 				stmt8 = conn.createStatement();
+				stmt9 = conn.createStatement();
+				stmt0 = conn.createStatement();
 
 				boolean tablaCamion = stmt.execute(TABLA_CREATE_CAMION); 
 				boolean tablaPlanta = stmt1.execute(TABLA_CREATE_PLANTA);
@@ -140,6 +163,8 @@ public class BD {
 				boolean tablaItem = stmt6.execute(TABLA_CREATE_ITEM);
 				boolean tablaEnvio = stmt7.execute(TABLA_CREATE_ENVIO);
 				boolean tablaStock = stmt8.execute(TABLA_CREATE_STOCK);
+				boolean tablaID = stmt9.execute(CREATE_TABLA_ID);
+				boolean tablaRutaPedido = stmt0.execute(TABLA_CREATE_RUTA_PEDIDO);
 				
 				_TABLAS_CREADAS = tablaCamion && 
 								  tablaPlanta && 
@@ -149,6 +174,8 @@ public class BD {
 								  tablaPedido && 
 								  tablaItem && 
 								  tablaEnvio &&
+								  tablaID &&
+								  tablaRutaPedido &&
 								  tablaStock;
 				
 			}catch (SQLException e) {
@@ -165,7 +192,10 @@ public class BD {
 						if(stmt6!=null) stmt6.close();
 						if(stmt7!=null) stmt7.close();
 						if(stmt8!=null) stmt8.close();
+						if(stmt9!=null) stmt9.close();
+						if(stmt0!=null) stmt0.close();
 						if(conn!=null) conn.close();
+						
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}

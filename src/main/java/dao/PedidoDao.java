@@ -7,10 +7,8 @@ import dominio.Pedido.Estado;
 
 public interface PedidoDao {
 
-	public Pedido saveOrUpdate(Pedido p);
-	public List<Pedido> buscarPorEstado(Estado estado);
+	public Pedido saveOrUpdate(Pedido p, boolean update);
 	public void borrarPedido(Integer id);
-	public List<Pedido> buscarTodos();
 	public List<Pedido> buscarTodosPorPlanta(Integer id_planta);
 	
 }

@@ -9,8 +9,8 @@ public class InsumoService {
 
 	private InsumoDaoMySql insumoDao = new InsumoDaoMySql();
 	
-	public Insumo saveOrUpdate(Insumo i) {
-		return this.insumoDao.saveOrUpdate(i);
+	public Insumo saveOrUpdate(Insumo i, boolean update) {
+		return this.insumoDao.saveOrUpdate(i, update);
 	}
 	
 	public Insumo buscarPorId(Integer id) {

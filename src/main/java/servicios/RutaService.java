@@ -9,8 +9,8 @@ public class RutaService {
 
 	RutaDaoMySql rutaDao = new RutaDaoMySql();
 	
-	public Ruta saveOrUpdate(Ruta r) {
-		return this.rutaDao.saveOrUpdate(r);
+	public Ruta saveOrUpdate(Ruta r, boolean update) {
+		return this.rutaDao.saveOrUpdate(r, update);
 	}
 	
 	public Ruta buscarPorId(Integer id) {
@@ -23,6 +23,10 @@ public class RutaService {
 	
 	public List<Ruta> buscarTodos(){
 		return this.rutaDao.buscarTodos();
+	}
+	
+	public List<Ruta> buscarTodosPorPedido(Integer id){
+		return this.rutaDao.buscarTodosPorPedido(id);
 	}
 	
 }

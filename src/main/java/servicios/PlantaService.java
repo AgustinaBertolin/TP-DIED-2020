@@ -10,12 +10,8 @@ public class PlantaService {
 
 	private PlantaDao plantaDao = new PlantaDaoMySql();
 
-	public Planta crearPlanta(Planta p) {
-		// si hay alguna regla de negocio que indque que no se 
-		// puede agregar un camion si no se cumplen determinadas
-		// condiciones en otras entidades o reglas 
-		// se valida aquí
-		return this.plantaDao.saveOrUpdate(p);
+	public Planta crearPlanta(Planta p, boolean update) {
+		return this.plantaDao.saveOrUpdate(p, update);
 	}
 	
 	public List<Planta> buscarTodos() {

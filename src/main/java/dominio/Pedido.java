@@ -17,6 +17,7 @@ public class Pedido {
 	private Estado estado;
 	private List<Item> items;
 	private Envio envio;
+	private boolean guardado = false;
 	
 	public Pedido() {
 		this.items = new ArrayList<Item>();
@@ -72,5 +73,15 @@ public class Pedido {
 	public void addItem(Item i) {
 		this.items.add(i);
 	}
+
+	public boolean isGuardado() {
+		return guardado;
+	}
+
+	public void setGuardado(boolean guardado) {
+		this.guardado = guardado;
+	}
+	
+	
 
 }

@@ -1,6 +1,9 @@
 package dao;
 
+import java.sql.Connection;
 import java.util.List;
+
+
 
 import dominio.Stock;
 

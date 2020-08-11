@@ -33,11 +33,16 @@ public class InsumoDaoMySql implements InsumoDao {
 			"DELETE FROM `tp_integrador`.`insumo` " +
 			"WHERE ID = ?";
 	
-	public Insumo saveOrUpdate(Insumo i) {
+	private static final String UPDATE_ID =
+			" UPDATE `tp_integrador`.`tabla_id` SET ID_INSUMO = ?"
+			+ " WHERE ID = 1";
+	
+	public Insumo saveOrUpdate(Insumo i, boolean update) {
 		Connection conn = BD.getConexion();
 		PreparedStatement pstmt = null;
+		PreparedStatement pstmt2 = null;
 		try {
-			if(i.getId()!=null && i.getId()>0) {
+			if(update) {
 				System.out.println("EJECUTA UPDATE");
 				pstmt= conn.prepareStatement(UPDATE_INSUMO);
 				pstmt.setString(1, i.getDescripcion());
@@ -67,13 +72,19 @@ public class InsumoDaoMySql implements InsumoDao {
 					pstmt.setDouble(5, ((InsumoLiquido) i).getDensidad());
 					pstmt.setDouble(4, 0);
 				}
+				
+				pstmt2= conn.prepareStatement(UPDATE_ID);
+				pstmt2.setInt(1, i.getId());
+		
 			}
 			pstmt.executeUpdate();
+			pstmt2.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}finally {
+		}finally { 
 			try {
 				if(pstmt!=null) pstmt.close();
+				if(pstmt2!=null) pstmt2.close();
 				if(conn!=null) conn.close();				
 			}catch(SQLException e) {
 				e.printStackTrace();
@@ -107,7 +118,7 @@ public class InsumoDaoMySql implements InsumoDao {
 				i.setUnidadDeMedida(UnidadDeMedida.valueOf(rs.getString("UNIDAD_DE_MEDIDA")));
 			}			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			e.printStackTrace(); 
 		}finally {
 			try {
 				if(rs!=null) rs.close();

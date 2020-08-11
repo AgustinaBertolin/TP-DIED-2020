@@ -32,7 +32,7 @@ public class StockDaoMySql implements StockDao {
 	
 	public Stock saveOrUpdate(Stock s, Integer id_planta) {
 
-		Connection conn = BD.getConexion();
+		Connection conn = BD.getConexion(); 
 		PreparedStatement pstmt = null;
 		
 		try {
@@ -86,7 +86,6 @@ public class StockDaoMySql implements StockDao {
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {
-				
 				Stock s = new Stock();
 				s.setIdRegistro(rs.getInt("ID_REGISTRO"));
 				s.setCantidad(rs.getInt("CANTIDAD"));

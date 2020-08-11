@@ -30,13 +30,22 @@ public class RutaDaoMySql implements RutaDao {
 	private static final String SELECT_ALL_RUTA =
 			" SELECT * FROM `tp_integrador`.`ruta`";
 	
-	public Ruta saveOrUpdate(Ruta r) {
+	private static final String UPDATE_ID =
+			" UPDATE `tp_integrador`.`tabla_id` SET ID_RUTA = ?"
+			+ " WHERE ID = 1";
+	
+	private static final String SELECT_ALL_PEDIDO =
+			"SELECT ID, PLANTA_DESTINO, PLANTA_ORIGEN, DISTANCIA_KM, DURACION, PESO_MAXIMO_POR_DIA FROM `tp_integrador`.`ruta`, `tp_integrador`.`ruta_pedido` " +
+			"WHERE `tp_integrador`.`ruta`.ID = `tp_integrador`.`ruta_pedido`.ID_RUTA AND ID_PEDIDO = ?";
+	
+	public Ruta saveOrUpdate(Ruta r, boolean update) {
 		
 		Connection conn = BD.getConexion();
 		PreparedStatement pstmt = null;
+		PreparedStatement pstmt2 = null;
 		
 		try {
-			if(r.getId()!=null && r.getId()>0) {
+			if(update) {
 				
 				System.out.println("EJECUTA UPDATE");
 				
@@ -60,14 +69,19 @@ public class RutaDaoMySql implements RutaDao {
 				pstmt.setInt(5, r.getDuracion());
 				pstmt.setDouble(6,  r.getPesoMaxPorDia());
 				
+				pstmt2= conn.prepareStatement(UPDATE_ID);
+				pstmt2.setInt(1, r.getId());
+				
 			}
 			pstmt.executeUpdate();
+			pstmt2.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
 			try {
 				
 				if(pstmt!=null) pstmt.close();
+				if(pstmt2!=null) pstmt2.close();
 				if(conn!=null) conn.close();
 				
 			}catch(SQLException e) {
@@ -151,24 +165,24 @@ public class RutaDaoMySql implements RutaDao {
 			pstmt= conn.prepareStatement(SELECT_ALL_RUTA);
 			rs = pstmt.executeQuery();
 			Ruta r = new Ruta();
+			PlantaDaoMySql plantaDao = new PlantaDaoMySql();
 			
 			while(rs.next()) {
 				
-				r.setId(rs.getInt("ID"));
-				
+				r.setId(rs.getInt("ID"));				
+				r.setDistanciaKM(rs.getDouble("DISTANCIA_KM"));
+				r.setDuracion(rs.getInt("DURACION"));
+				r.setPesoMaxPorDia(rs.getDouble("PESO_MAXIMO_POR_DIA"));
+		 		
 				//PLANTAS
-				PlantaDaoMySql plantaDao = new PlantaDaoMySql();
 				r.setDestino(plantaDao.buscarPorId(rs.getInt("PLANTA_DESTINO")));
 				r.setOrigen(plantaDao.buscarPorId(rs.getInt("PLANTA_ORIGEN")));
 				//
 				
-				r.setDistanciaKM(rs.getDouble("DISTANCIA_KM"));
-				r.setDuracion(rs.getInt("DURACION"));
-				r.setPesoMaxPorDia(rs.getDouble("PESO_MAXIMO_POR_DIA"));
-				
 				lista.add(r);
 				
 			}	
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
@@ -184,5 +198,48 @@ public class RutaDaoMySql implements RutaDao {
 		return lista;
 	}
 
+	public List<Ruta> buscarTodosPorPedido(Integer id) {
+		List<Ruta> lista = new ArrayList<Ruta>();
+		Connection conn = BD.getConexion();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			pstmt= conn.prepareStatement(SELECT_ALL_PEDIDO);
+			pstmt.setInt(1, id);
+			rs = pstmt.executeQuery();
+			Ruta r = new Ruta();
+			PlantaDaoMySql plantaDao = new PlantaDaoMySql();
+			
+			while(rs.next()) {
+				
+				r.setId(rs.getInt("ID"));				
+				r.setDistanciaKM(rs.getDouble("DISTANCIA_KM"));
+				r.setDuracion(rs.getInt("DURACION"));
+				r.setPesoMaxPorDia(rs.getDouble("PESO_MAXIMO_POR_DIA"));
+		 		
+				//PLANTAS
+				r.setDestino(plantaDao.buscarPorId(rs.getInt("PLANTA_DESTINO")));
+				r.setOrigen(plantaDao.buscarPorId(rs.getInt("PLANTA_ORIGEN")));
+				//
+				
+				lista.add(r);
+				
+			}	
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(rs!=null) rs.close();
+				if(pstmt!=null) pstmt.close();
+				if(conn!=null) conn.close();				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+		}	
+		System.out.println("Resultado "+lista);
+		return lista;
+	}
 	
 }

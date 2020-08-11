@@ -36,11 +36,16 @@ public class CamionDaoMySql implements CamionDao {
 			"DELETE FROM `tp_integrador`.`camion` " +
 			"WHERE ID = ?";
 	
-	public Camion saveOrUpdate(Camion c) {
+	private static final String UPDATE_ID =
+			" UPDATE `tp_integrador`.`tabla_id` SET ID_CAMION = ?"
+			+ " WHERE ID = 1";
+	
+	public Camion saveOrUpdate(Camion c, boolean update) {
 		Connection conn = BD.getConexion();
 		PreparedStatement pstmt = null;
+		PreparedStatement pstmt2 = null;
 		try {
-			if(c.getId()!=null && c.getId()>0) {
+			if(update) {
 				System.out.println("EJECUTA UPDATE");
 				pstmt= conn.prepareStatement(UPDATE_CAMION);
 				pstmt.setString(1, c.getPatente());
@@ -55,13 +60,18 @@ public class CamionDaoMySql implements CamionDao {
 				pstmt.setString(2, c.getMarca());
 				pstmt.setString(3, c.getModelo());
 				pstmt.setDouble(4, c.getKmRecorridos());
+				
+				pstmt2= conn.prepareStatement(UPDATE_ID);
+				pstmt2.setInt(1, c.getId());
 			}
 			pstmt.executeUpdate();
+			pstmt2.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
 			try {
 				if(pstmt!=null) pstmt.close();
+				if(pstmt2!=null) pstmt.close();
 				if(conn!=null) conn.close();				
 			}catch(SQLException e) {
 				e.printStackTrace();
@@ -85,11 +95,12 @@ public class CamionDaoMySql implements CamionDao {
 				c.setModelo(rs.getString("MODELO"));
 				c.setPatente(rs.getString("PATENTE"));
 				c.setKmRecorridos(rs.getDouble("KM"));
+				c.setGuardado(true);
 			}			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
-			try {
+			try { 
 				if(rs!=null) rs.close();
 				if(pstmt!=null) pstmt.close();
 				if(conn!=null) conn.close();				
@@ -135,6 +146,7 @@ public class CamionDaoMySql implements CamionDao {
 				c.setModelo(rs.getString("MODELO"));
 				c.setPatente(rs.getString("PATENTE"));
 				c.setKmRecorridos(rs.getDouble("KM"));
+				c.setGuardado(true);
 				lista.add(c);
 			}			
 		} catch (SQLException e) {
@@ -169,6 +181,7 @@ public class CamionDaoMySql implements CamionDao {
 				c.setModelo(rs.getString("MODELO"));
 				c.setPatente(rs.getString("PATENTE"));
 				c.setKmRecorridos(rs.getDouble("KM"));
+				c.setGuardado(true);
 				lista.add(c);
 			}			
 		} catch (SQLException e) {
